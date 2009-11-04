@@ -5,15 +5,14 @@ HEADER = evolve.h
 S_MAIN = image_evolve.cpp
 
 CC = g++
-CFLAGS = -g -o
+CFLAGS = -g
 MAGICKFLAGS = `Magick++-config --cppflags --cxxflags --ldflags --libs`
 
-
 image_evolve:	${S_MAIN} ${O_HELPERS}
-		${CC} ${CFLAGS} $@ ${O_HELPERS} ${S_MAIN} ${MAGICKFLAGS}
+		${CC} ${CFLAGS} ${O_HELPERS} ${S_MAIN} -o $@ ${MAGICKFLAGS}
 
-helpers:	${S_HELPERS}
-		${CC} ${CFLAGS} -c  ${MAGICKFLAGS} ${S_HELPERS}
+genetics.o:	${S_HELPERS}
+		${CC} ${CFLAGS} -c ${S_HELPERS} ${MAGICKFLAGS}
 
 clean:
 		rm *.o
