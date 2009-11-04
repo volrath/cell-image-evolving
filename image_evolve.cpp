@@ -2,7 +2,6 @@
 
 using namespace std;
 
-
 int main() {
 	candidate_t *fittest;
 	population_t *pop;
