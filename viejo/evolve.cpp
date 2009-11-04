@@ -2,6 +2,10 @@
 
 int file = 0; // Número del próximo archivo a guardar
 
+bool compare(candidate_t *a, candidate_t *b) {
+	return a->fitness > b->fitness;
+}
+
 /******************************** Population_t ********************************/
 population_t::population_t() {
 	srand(time(NULL));
@@ -11,7 +15,7 @@ population_t::population_t() {
 
 // TODO: MUTATE CHANCE!!!!!!!!
 void population_t::next_generation() {
-	sort(candidates_.begin(), candidates_.end());
+	sort(candidates_.begin(), candidates_.end(), compare);
 	vector<candidate_t*> offspring;
 	
 	int rnd_candidate;
@@ -40,7 +44,7 @@ int population_t::get_size() {
 }
 
 candidate_t* population_t::get_fittest() {
-	sort(candidates_.begin(), candidates_.end());
+	sort(candidates_.begin(), candidates_.end(), compare);
 	return candidates_[0];
 }
 
@@ -68,10 +72,6 @@ candidate_t::candidate_t(poly_t *parent1, poly_t *parent2) {
 		dna[i] = (rand() % 2) ? parent1[i] : parent2[i];
 
 	fitness = calc_fitness();
-}
-
-bool candidate_t::operator<(const candidate_t &o) const {
-	return fitness > o.fitness;
 }
 
 double candidate_t::calc_fitness() {
@@ -118,7 +118,7 @@ void candidate_t::draw() {
 }
 
 void candidate_t::write() {
-	printf("Dibujando... ");
+	printf("    Dibujando... ");
 	char *s;
 	s = new char[30];
 	sprintf(s, "media/replica%d.gif", file++);
@@ -136,7 +136,7 @@ int main() {
 		printf("Generando próxima población... [%d]\n", count);
 		pop->next_generation();
 		fittest = pop->get_fittest();
-		printf("Fitness: %f %%\n", (double) fittest->fitness * 100);
+		printf("  Fitness: %f %%\n", (double) fittest->fitness * 100);
 		
 		if (count % 5 == 0)
 			fittest->write();

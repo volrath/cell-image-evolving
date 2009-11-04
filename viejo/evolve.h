@@ -44,7 +44,6 @@ public:
 	
 	candidate_t();
 	candidate_t(poly_t*, poly_t*);
-	bool operator<(const candidate_t&) const;
 	double calc_fitness();
 	void draw();
 	void write();
