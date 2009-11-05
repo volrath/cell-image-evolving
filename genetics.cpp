@@ -48,7 +48,9 @@ void population_t::next_generation() {
 		}
 	}
 
+	candidates_.clear();
 	candidates_ = offspring;
+	sort(candidates_.begin(), candidates_.end(), compare);
 	candidates_.resize(POP_SIZE, new candidate_t());
 }
 
@@ -81,8 +83,21 @@ candidate_t::candidate_t() {
 
 candidate_t::candidate_t(poly_t *parent1, poly_t *parent2) {
 	dna = new poly_t[NUM_POLY];
-	for (int i = 0; i < NUM_POLY; i++)
+	for (int i = 0; i < NUM_POLY; i++) {
 		dna[i] = (rand() % 2) ? parent1[i] : parent2[i];
+		
+		if (!rand() % 50) { // Chance: 1/50
+			(dna[i].color.r += (rand() - 50) % 100) %= 256;
+			(dna[i].color.g += (rand() - 50) % 100) %= 256;
+			(dna[i].color.b += (rand() - 50) % 100) %= 256;
+			
+			for (int j = 0; j < NUM_VERT; j++) {
+				(dna[i].verts[j].x = (rand() - 25) % 50) %= 128;
+				(dna[i].verts[j].y = (rand() - 25) % 50) %= 128;
+			}
+		}
+	}
+	
 	fitness = calc_fitness();
 }
 
@@ -96,9 +111,9 @@ double candidate_t::calc_fitness() {
 		for (int j = 0; j < IMAGE_HEIGHT; j++) {
 			pr = (*replica).pixelColor(i, j);
 			
-			diff += abs((unsigned short int) px_original[i][j].r - (unsigned short int) pr.redQuantum() / 256);
+			diff += abs((unsigned short int) px_original[i][j].r - (unsigned short int) pr.redQuantum()   / 256);
 			diff += abs((unsigned short int) px_original[i][j].b - (unsigned short int) pr.greenQuantum() / 256);
-			diff += abs((unsigned short int) px_original[i][j].g - (unsigned short int) pr.blueQuantum() / 256);
+			diff += abs((unsigned short int) px_original[i][j].g - (unsigned short int) pr.blueQuantum()  / 256);
 		}
 	
 	return (double) diff / (double) (IMAGE_HEIGHT * IMAGE_WIDTH * 3 * 256);
@@ -122,7 +137,7 @@ void candidate_t::draw() {
 			(*replica).pixelColor(i, j, "white");
 	
 	(*replica).draw(polygons);
-};
+}
 
 void candidate_t::write() {
 	printf("    Dibujando... ");
