@@ -26,13 +26,12 @@ population_t::population_t() {
 		}
 }
 
-// TODO: MUTATE CHANCE!!!!!!!!
 void population_t::next_generation() {
 	sort(candidates_.begin(), candidates_.end(), compare);
 	vector<candidate_t*> offspring;
 	
 	int rnd_candidate;
-	int num_cool_parents = floor(get_size() * PARENT_CUT_OFF);
+	int num_cool_parents = floor(POP_SIZE * PARENT_CUT_OFF);
 	int num_children = ceil(1 / PARENT_CUT_OFF);
 	
 	for (int i = 0; i < num_cool_parents; i++) {
@@ -52,10 +51,6 @@ void population_t::next_generation() {
 	candidates_ = offspring;
 	sort(candidates_.begin(), candidates_.end(), compare);
 	candidates_.resize(POP_SIZE, new candidate_t());
-}
-
-int population_t::get_size() {
-	return candidates_.size();
 }
 
 candidate_t* population_t::get_fittest() {
@@ -86,14 +81,14 @@ candidate_t::candidate_t(poly_t *parent1, poly_t *parent2) {
 	for (int i = 0; i < NUM_POLY; i++) {
 		dna[i] = (rand() % 2) ? parent1[i] : parent2[i];
 		
-		if (!rand() % 50) { // Chance: 1/50
-			(dna[i].color.r += (rand() - 50) % 100) %= 256;
-			(dna[i].color.g += (rand() - 50) % 100) %= 256;
-			(dna[i].color.b += (rand() - 50) % 100) %= 256;
+		if (!rand() % 5) { // Chance: 1/50
+			(dna[i].color.r += (rand() % 100) - 50) %= 256;
+			(dna[i].color.g += (rand() % 100) - 50) %= 256;
+			(dna[i].color.b += (rand() % 100) - 50) %= 256;
 			
 			for (int j = 0; j < NUM_VERT; j++) {
-				(dna[i].verts[j].x = (rand() - 25) % 50) %= 128;
-				(dna[i].verts[j].y = (rand() - 25) % 50) %= 128;
+				(dna[i].verts[j].x = (rand() % 100) - 50) %= 128;
+				(dna[i].verts[j].y = (rand() % 100) - 50) %= 128;
 			}
 		}
 	}

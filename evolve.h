@@ -91,6 +91,5 @@ public:
 	vector<candidate_t*> candidates_;
 	population_t();
 	void next_generation();
-	int get_size();
 	candidate_t* get_fittest();
 };
