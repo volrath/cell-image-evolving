@@ -13,7 +13,7 @@ int main() {
     fittest = pop->get_fittest();
     printf("Fitness: %f %%\n", (double) fittest->fitness * 100);
     
-    if (count % 5 == 0)
+    //if (count % 5 == 0)
       fittest->write();
   }
 }
