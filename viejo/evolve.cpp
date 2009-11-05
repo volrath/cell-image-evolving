@@ -19,7 +19,7 @@ void population_t::next_generation() {
 	vector<candidate_t*> offspring;
 	
 	int rnd_candidate;
-	int num_cool_parents = floor(get_size() * PARENT_CUT_OFF);
+	int num_cool_parents = floor(POP_SIZE * PARENT_CUT_OFF);
 	int num_children = ceil(1 / PARENT_CUT_OFF);
 	
 	for (int i = 0; i < num_cool_parents; i++) {
@@ -35,8 +35,23 @@ void population_t::next_generation() {
 		}
 	}
 	
+	candidates_.clear();
 	candidates_ = offspring;
+//	for (int i = 0; i < (int) offspring.size(); i++) {
+//		bool exist = 0;
+//		for (int j = 0; j < (int) candidates_.size(); j++)
+//			if (candidates_[j]->fitness == offspring[i]->fitness) {
+//				exist = true;
+//				break;
+//			}
+//		if (!exist)
+//			candidates_.push_back(offspring[i]);
+//	}
+	sort(candidates_.begin(), candidates_.end(), compare);
 	candidates_.resize(POP_SIZE, new candidate_t());
+	for (int i = 0; i < 10; i++)
+		printf("%f ", 100 * candidates_[i]->fitness);
+	printf("\n");
 }
 
 int population_t::get_size() {
@@ -87,13 +102,9 @@ double candidate_t::calc_fitness() {
 			diff += abs((unsigned short int) pr.redQuantum()   - (unsigned short int) po.redQuantum());
 			diff += abs((unsigned short int) pr.blueQuantum()  - (unsigned short int) po.blueQuantum());
 			diff += abs((unsigned short int) pr.greenQuantum() - (unsigned short int) po.greenQuantum());
-			
-//			printf(" >> %d %d %d\n", (unsigned short int) pr.redQuantum(), (unsigned short int) pr.blueQuantum(), (unsigned short int) pr.greenQuantum());
 		}
 	
 	diff /= 256;
-	
-//	printf("%f / %f = %f\n", (double) diff, (double) (IMAGE_HEIGHT * IMAGE_WIDTH * 3 * 256 * 100), (double) diff / (double) (IMAGE_HEIGHT * IMAGE_WIDTH * 3 * 256 * 100));
 	return (double) diff / (double) (IMAGE_HEIGHT * IMAGE_WIDTH * 3 * 256 * 100);
 }
 
