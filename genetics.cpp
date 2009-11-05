@@ -13,17 +13,19 @@ bool compare(candidate_t *a, candidate_t *b) {
 
 /******************************** Population_t ********************************/
 population_t::population_t() {
-	srand(time(NULL));
-	for (int i = 0; i < POP_SIZE; i++)
-		candidates_.push_back(new candidate_t());
-
-	// Initialize px_original
-	Color px;
-	for (int i = 0; i < IMAGE_WIDTH; i++)
-		for(int j = 0; j < IMAGE_HEIGHT; j++) {
-			px = original.pixelColor(i, j);
-			px_original[i][j].from_pixel(px);
-		}
+  srand(time(NULL));
+  
+  // Initialize px_original
+  Color px;
+  for (int i = 0; i < IMAGE_WIDTH; i++) {
+    for(int j = 0; j < IMAGE_HEIGHT; j++) {
+      px = original.pixelColor(i, j);
+      px_original[i][j].from_pixel(px);
+    }
+  }
+  
+  for (int i = 0; i < POP_SIZE; i++)
+    candidates_.push_back(new candidate_t());
 }
 
 // TODO: MUTATE CHANCE!!!!!!!!
@@ -87,48 +89,45 @@ candidate_t::candidate_t(poly_t *parent1, poly_t *parent2) {
 }
 
 double candidate_t::calc_fitness() {
-	Color pr;
-	int diff = 0;
-	replica = new Image(Geometry(IMAGE_WIDTH, IMAGE_HEIGHT), Color(0,0,0,0));
-	draw();
-
-	for (int i = 0; i < IMAGE_WIDTH; i++)
-		for (int j = 0; j < IMAGE_HEIGHT; j++) {
-			pr = (*replica).pixelColor(i, j);
-			
-			diff += abs((unsigned short int) px_original[i][j].r - (unsigned short int) pr.redQuantum() / 256);
-			diff += abs((unsigned short int) px_original[i][j].b - (unsigned short int) pr.greenQuantum() / 256);
-			diff += abs((unsigned short int) px_original[i][j].g - (unsigned short int) pr.blueQuantum() / 256);
-		}
-	
-	return (double) diff / (double) (IMAGE_HEIGHT * IMAGE_WIDTH * 3 * 256);
+  Color pr;
+  int diff = 0;
+  replica = new Image(Geometry(IMAGE_WIDTH, IMAGE_HEIGHT), "black");
+  draw();
+  
+  for (int i = 0; i < IMAGE_WIDTH; i++)
+    for (int j = 0; j < IMAGE_HEIGHT; j++) {
+      pr = (*replica).pixelColor(i, j);
+      
+      diff += abs((unsigned short int) px_original[i][j].r - (unsigned short int) pr.redQuantum());
+      diff += abs((unsigned short int) px_original[i][j].b - (unsigned short int) pr.greenQuantum());
+      diff += abs((unsigned short int) px_original[i][j].g - (unsigned short int) pr.blueQuantum());
+    }
+  
+  return (double) diff / (double) (IMAGE_HEIGHT * IMAGE_WIDTH * 3 * 256);
 }
 
 void candidate_t::draw() {
-	list<Drawable> polygons;
-	
-	for (int i = 0; i < NUM_POLY; i++) {
-		list<Coordinate> poly_coords;
-		for (int j = 0; j < NUM_VERT; j++)
-			poly_coords.push_back(Coordinate(dna[i].verts[j].x, dna[i].verts[j].y));
+  list<Drawable> polygons;
+  for (int i = 0; i < NUM_POLY; i++) {
+    list<Coordinate> poly_coords;
+    for (int j = 0; j < NUM_VERT; j++)
+      poly_coords.push_back(Coordinate(dna[i].verts[j].x, dna[i].verts[j].y));
 
-		polygons.push_back(DrawablePolygon(poly_coords));
-		polygons.push_back(DrawableFillColor(Color(256*dna[i].color.r, 256*dna[i].color.g, 256*dna[i].color.b, MaxRGB/2)));
-	}
-	
-	(*replica).size(Geometry(IMAGE_WIDTH, IMAGE_HEIGHT));
-	for (int i = 0; i < IMAGE_WIDTH; i++)
-		for (int j = 0; j < IMAGE_HEIGHT; j++)
-			(*replica).pixelColor(i, j, "white");
-	
-	(*replica).draw(polygons);
+    Color c(dna[i].color.r, dna[i].color.g, dna[i].color.b, dna[i].color.alpha);
+    
+    polygons.push_back(DrawableFillColor(c));
+    polygons.push_back(DrawableFillOpacity((double)(dna[i].color.alpha / 255.0)));
+    polygons.push_back(DrawablePolygon(poly_coords));
+  }
+  (*replica).draw(polygons);
 };
 
 void candidate_t::write() {
 	printf("    Dibujando... ");
 	char *s;
 	s = new char[30];
-	sprintf(s, "media/replica%d.gif", file++);
+	sprintf(s, "media/replica%d.png", file++);
 	printf("%s\n", s);
 	(*replica).write(s);
+	//(*replica).display();
 }

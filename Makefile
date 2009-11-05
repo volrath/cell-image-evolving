@@ -11,7 +11,7 @@ MAGICKFLAGS = `Magick++-config --cppflags --cxxflags --ldflags --libs`
 image_evolve:	${S_MAIN} ${O_HELPERS}
 		${CC} ${CFLAGS} ${O_HELPERS} ${S_MAIN} -o $@ ${MAGICKFLAGS}
 
-genetics.o:	${S_HELPERS}
+genetics.o:	${S_HELPERS} ${HEADER}
 		${CC} ${CFLAGS} -c ${S_HELPERS} ${MAGICKFLAGS}
 
 clean:

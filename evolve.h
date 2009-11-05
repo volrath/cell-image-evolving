@@ -9,7 +9,7 @@
 #define IMAGE_WIDTH  128
 #define IMAGE_HEIGHT 128
 #define POP_SIZE 42
-#define NUM_POLY 6
+#define NUM_POLY 100
 #define NUM_VERT 6
 #define MUTATE_CHANCE 0.02
 #define PARENT_CUT_OFF 0.25
@@ -24,9 +24,9 @@ struct color_t {
   unsigned char alpha;
 
   void from_pixel(Color px) {
-    r = (unsigned char)px.redQuantum(); 
-    g = (unsigned char)px.greenQuantum(); 
-    b = (unsigned char)px.blueQuantum(); 
+    r = (unsigned char)px.redQuantum();
+    g = (unsigned char)px.greenQuantum();
+    b = (unsigned char)px.blueQuantum();
     alpha = (unsigned char)px.alphaQuantum();
   };
 
