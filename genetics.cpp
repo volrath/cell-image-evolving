@@ -81,14 +81,14 @@ candidate_t::candidate_t(poly_t *parent1, poly_t *parent2) {
 	for (int i = 0; i < NUM_POLY; i++) {
 		dna[i] = (rand() % 2) ? parent1[i] : parent2[i];
 		
-		if (!rand() % 5) { // Chance: 1/50
-			(dna[i].color.r += (rand() % 100) - 50) %= 256;
-			(dna[i].color.g += (rand() % 100) - 50) %= 256;
-			(dna[i].color.b += (rand() % 100) - 50) %= 256;
+		if (!rand() % 10) { // Chance: 1/10
+			(dna[i].color.r += (rand() % 40) - 20) %= 256;
+			(dna[i].color.g += (rand() % 40) - 20) %= 256;
+			(dna[i].color.b += (rand() % 40) - 20) %= 256;
 			
 			for (int j = 0; j < NUM_VERT; j++) {
-				(dna[i].verts[j].x = (rand() % 100) - 50) %= 128;
-				(dna[i].verts[j].y = (rand() % 100) - 50) %= 128;
+				(dna[i].verts[j].x = (rand() % 10) - 5) %= 128;
+				(dna[i].verts[j].y = (rand() % 10) - 5) %= 128;
 			}
 		}
 	}
