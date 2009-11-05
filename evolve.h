@@ -33,16 +33,28 @@ struct color_t {
   void print(ostream &os) const {
     os << "[ " << (unsigned short int)r << ", " << (unsigned short int)g << ", " << (unsigned short int)b << ", " << (unsigned short int)alpha << " ]";
   };
+
 };
-inline ostream& operator<<( ostream &os, const color_t &s ) { s.print(os); return(os); };
+
+inline ostream& operator<<(ostream &os, const color_t &s) {
+	s.print(os);
+	return(os);
+};
 
 struct vert_t {
   unsigned char x;
   unsigned char y;
 
-  void print(ostream &os) const { os << "(" << (unsigned short int)x << "," << (unsigned short int)y << ") "; };
+  void print(ostream &os) const {
+		os << "(" << (unsigned short int) x << "," << (unsigned short int) y << ") ";
+	};
+
 };
-inline ostream& operator<<( ostream &os, const vert_t &s ) { s.print(os); return(os); }
+
+inline ostream& operator<<(ostream &os, const vert_t &s) {
+	s.print(os);
+	return(os);
+}
 
 struct poly_t {
   color_t color;
@@ -53,8 +65,13 @@ struct poly_t {
     for (int i = 0; i < NUM_VERT; i++)
       os << verts[i];
   };
+
 };
-inline ostream& operator<<( ostream &os, const poly_t &s ) { s.print(os); return(os); }
+
+inline ostream& operator<<(ostream &os, const poly_t &s) {
+	s.print(os);
+	return(os);
+}
 
 class candidate_t {
 public:
@@ -74,6 +91,5 @@ public:
 	vector<candidate_t*> candidates_;
 	population_t();
 	void next_generation();
-	int get_size();
 	candidate_t* get_fittest();
 };
