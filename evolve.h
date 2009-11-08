@@ -8,11 +8,15 @@
 
 #define IMAGE_WIDTH  128
 #define IMAGE_HEIGHT 128
-#define POP_SIZE 36
-#define NUM_POLY 6
+#define POP_SIZE 30
+#define NUM_POLY 10
 #define NUM_VERT 6
-#define MUTATE_CHANCE 0.02
-#define PARENT_CUT_OFF 0.25
+#define PARENT_CUT_OFF .20
+#define NUM_COOL_PARENTS candidates_.size() * PARENT_CUT_OFF
+#define NUM_CHILDREN 1 / PARENT_CUT_OFF
+#define MUTATE_CHANCE .02
+#define MUTATE_AMOUNT .1
+#define RAND ((double) (rand() % 100000)) / 100000.
 
 using namespace std;
 using namespace Magick;
@@ -65,7 +69,6 @@ struct poly_t {
     for (int i = 0; i < NUM_VERT; i++)
       os << verts[i];
   };
-
 };
 
 inline ostream& operator<<(ostream &os, const poly_t &s) {
@@ -77,7 +80,6 @@ class candidate_t {
 public:
 	double fitness;
 	poly_t *dna;
-	Image *replica;
 
 	candidate_t();
 	candidate_t(poly_t*, poly_t*);
@@ -89,6 +91,7 @@ public:
 class population_t {
 public:
 	vector<candidate_t*> candidates_;
+
 	population_t();
 	void next_generation();
 	candidate_t* get_fittest();
