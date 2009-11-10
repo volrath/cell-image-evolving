@@ -7,18 +7,35 @@ Image replica(Geometry(IMAGE_WIDTH, IMAGE_HEIGHT), "white");
 Image original("media/firefox.jpg");
 color_t px_original[IMAGE_WIDTH][IMAGE_HEIGHT];
 int file = 0;
+double fact = 0.;
+double best = 0.;
+int it = 0;
 
 bool compare(candidate_t *a, candidate_t *b) {
 	return a->fitness > b->fitness;
 }
 
+poly_t clone(poly_t from) {
+	poly_t copy;
+	
+	copy.color.r = from.color.r;
+	copy.color.g = from.color.g;
+	copy.color.b = from.color.b;
+	
+	for (int j = 0; j < NUM_VERT; j++) {
+		copy.verts[j].x = from.verts[j].x;
+		copy.verts[j].y = from.verts[j].y;
+	}
+	
+	return copy;
+}
+
 /******************************** Population_t ********************************/
 population_t::population_t() {
-	srand(time(NULL));
+	srand((unsigned) time(0));
 	for (int i = 0; i < POP_SIZE; i++)
 		candidates_.push_back(new candidate_t());
 
-	// Initialize px_original
 	Color px;
 	for (int i = 0; i < IMAGE_WIDTH; i++)
 		for(int j = 0; j < IMAGE_HEIGHT; j++) {
@@ -30,6 +47,7 @@ population_t::population_t() {
 }
 
 void population_t::next_generation() {
+	sort(candidates_.begin(), candidates_.end(), compare);
 	vector<candidate_t*> offspring;
 	
 	for (int i = 0; i < NUM_COOL_PARENTS; i++) {
@@ -45,18 +63,24 @@ void population_t::next_generation() {
 		}
 	}
 	
-	candidates_.clear();
 	candidates_ = offspring;
-//	for (int i = 0; i < (int) offspring.size(); i++)
-//		candidates_.push_back(offspring[i]);
-	for (int i = 0; i < 2 * NUM_CHILDREN; i++)
-		candidates_.push_back(new candidate_t());
-	sort(candidates_.begin(), candidates_.end(), compare);
-//	for (int i = 0; i < 10; i++) cout << 100*candidates_[i]->fitness << " "; cout << endl;
-	candidates_.resize(POP_SIZE, new candidate_t());
 }
 
 candidate_t* population_t::get_fittest() {
+	sort(candidates_.begin(), candidates_.end(), compare);
+/*
+ if (candidates_[0]->fitness > best)
+		best = candidates_[0]->fitness;
+	else
+		it++;
+	if (fact > .02)
+		fact = .0;
+	if (it > 5) {
+		fact += .0025;
+		it = 0;
+		printf("  Mutate Chance: %f\n", MUTATE_CHANCE + fact);
+	}
+*/
 	return candidates_[0];
 }
 
@@ -81,26 +105,43 @@ candidate_t::candidate_t() {
 candidate_t::candidate_t(poly_t *parent1, poly_t *parent2) {
 	dna = new poly_t[NUM_POLY];
 	for (int i = 0; i < NUM_POLY; i++) {
-		dna[i] = (RAND < .5) ? parent1[i] : parent2[i];
+		dna[i] = (RAND < .5) ? clone(parent1[i]) : clone(parent2[i]);
 		
-		if (RAND < MUTATE_CHANCE)
-			dna[i].color.r += RAND * MUTATE_AMOUNT * 2 - MUTATE_AMOUNT;
+		int diff;
+		if (RAND < MUTATE_CHANCE+fact) {
+			diff = dna[i].color.r + 255 * MUTATE_AMOUNT * (2 * RAND - 1.);
+			if (diff > 255) dna[i].color.r = 255;
+			else if (diff < 0) dna[i].color.r = 0;
+			else dna[i].color.r = diff;
+		}
 		
-		if (RAND < MUTATE_CHANCE)
-			dna[i].color.g += RAND * MUTATE_AMOUNT * 2 - MUTATE_AMOUNT;
+		if (RAND < MUTATE_CHANCE+fact) {
+			diff = dna[i].color.g + 255 * MUTATE_AMOUNT * (2 * RAND - 1.);
+			if (diff > 255) dna[i].color.g = 255;
+			else if (diff < 0) dna[i].color.g = 0;
+			else dna[i].color.g = diff;
+		}
 		
-		if (RAND < MUTATE_CHANCE)
-			dna[i].color.b += RAND * MUTATE_AMOUNT * 2 - MUTATE_AMOUNT;
+		if (RAND < MUTATE_CHANCE+fact) {
+			diff = dna[i].color.b + 255 * MUTATE_AMOUNT * (2 * RAND - 1.);
+			if (diff > 255) dna[i].color.b = 255;
+			else if (diff < 0) dna[i].color.b = 0;
+			else dna[i].color.b = diff;
+		}
 
 		for (int j = 0; j < NUM_VERT; j++) {
-	 		if (RAND < MUTATE_CHANCE) {
-				dna[i].verts[j].x = RAND * MUTATE_AMOUNT * 2 - MUTATE_AMOUNT;
-				if (dna[i].verts[j].x > 127) dna[i].verts[j].x = 127;
+			if (RAND < MUTATE_CHANCE+fact) {
+				diff = dna[i].verts[j].x + 127 * MUTATE_AMOUNT * (2 * RAND - 1.);
+				if (diff > 127) dna[i].verts[j].x = 127;
+				else if (diff < 0) dna[i].verts[j].x = 0;
+				else dna[i].verts[j].x = diff;
 			}
 
-			if (RAND < MUTATE_CHANCE) {
-				dna[i].verts[j].y = RAND * MUTATE_AMOUNT * 2 - MUTATE_AMOUNT;
-				if (dna[i].verts[j].y > 127) dna[i].verts[j].y = 127;
+			if (RAND < MUTATE_CHANCE+fact) {
+				diff = dna[i].verts[j].y + 127 * MUTATE_AMOUNT * (2 * RAND - 1.);
+				if (diff > 127) dna[i].verts[j].y = 127;
+				else if (diff < 0) dna[i].verts[j].y = 0;
+				else dna[i].verts[j].y = diff;
 			}
 		}
 	}

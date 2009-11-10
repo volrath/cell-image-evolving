@@ -4,31 +4,22 @@ using namespace std;
 
 int main() {
 	candidate_t *fittest;
-	candidate_t *best;
 	population_t *pop;
 	pop = new population_t();
+	double best_fitness = .0;
 	
-	printf("Generando primera poblacion...\n");
-	pop->next_generation();
-	best = pop->get_fittest();
-	printf("  Fitness: %f %%\n", (double) best->fitness * 100);
-	best->write();
-	
-	for (int count = 1; ; count++) {
-		printf("Generando poblacion... [%d]\n", count);
+	for (int count = 0;; count++) {
+		printf("[%d] Generando poblacion...\n", count);
 		pop->next_generation();
 		
 		fittest = pop->get_fittest();
-		if (fittest->fitness > best->fitness)
-			best = fittest;
+		if (fittest->fitness > best_fitness)
+			best_fitness = fittest->fitness;
 
 		printf("  Fitness: %f %%\n", (double) fittest->fitness * 100);
-		printf("  Best:    %f %%\n", (double) best->fitness * 100);
+		printf("  Best:    %f %%\n", (double) best_fitness * 100);
 		
-		if (count % 10 == 0)
+		if (count % 5 == 0)
 			fittest->write();
 	}
-	
-	printf("  Best Fitness: %f %%\n", (double) best->fitness * 100);
-	best->write();
 }
