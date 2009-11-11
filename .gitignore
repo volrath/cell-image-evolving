@@ -1,3 +1,5 @@
 *.o
 image_evolve
 media/replica*
+replicas/*
+
