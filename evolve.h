@@ -11,7 +11,7 @@
 #define POP_SIZE 42
 #define NUM_POLY 104
 #define NUM_VERT 6
-#define PARENT_CUT_OFF .20
+#define PARENT_CUT_OFF .25
 #define NUM_COOL_PARENTS POP_SIZE * PARENT_CUT_OFF
 #define NUM_CHILDREN 1 / PARENT_CUT_OFF
 #define MUTATE_CHANCE .02
@@ -28,10 +28,10 @@ struct color_t {
   unsigned char alpha;
 
   void from_pixel(Color px) {
-    r = (unsigned char)px.redQuantum();
-    g = (unsigned char)px.greenQuantum();
-    b = (unsigned char)px.blueQuantum();
-    alpha = (unsigned char)px.alphaQuantum();
+    r = (unsigned char) px.redQuantum();
+    g = (unsigned char) px.greenQuantum();
+    b = (unsigned char) px.blueQuantum();
+    alpha = (unsigned char) px.alphaQuantum();
   };
 
   void print(ostream &os) const {
