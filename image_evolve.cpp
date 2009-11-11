@@ -4,7 +4,7 @@ int main(int argc, char** argv) {
 	candidate_t *fittest;
 	population_t *pop;
 	char* in_file;
-	double best_fitness = .0;
+	double best_fitness = 0.;
 
 	in_file = "media/firefox.jpg";
 	pop = new population_t(argc == 1 ? in_file : argv[1]);
