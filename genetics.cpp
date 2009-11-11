@@ -39,22 +39,22 @@ void population_t::next_generation() {
 		for (int j = 0; j < NUM_CHILDREN; j++) {
 			int rnd_candidate = i;
 			while (rnd_candidate == i)
-				rnd_candidate = rand() % NUM_COOL_PARENTS;
+			  rnd_candidate = floor(RAND * NUM_COOL_PARENTS);
 			candidate_t *cand;
 			cand = new candidate_t(dna, candidates_[rnd_candidate]->dna);
 			offspring.push_back(cand);
 		}
 	}
-	
+
 	candidates_.clear();
 	candidates_ = offspring;
 //	for (int i = 0; i < (int) offspring.size(); i++)
 //		candidates_.push_back(offspring[i]);
-	for (int i = 0; i < 2 * NUM_CHILDREN; i++)
-		candidates_.push_back(new candidate_t());
-	sort(candidates_.begin(), candidates_.end(), compare);
+// 	for (int i = 0; i < 2 * NUM_CHILDREN; i++)
+// 		candidates_.push_back(new candidate_t());
 //	for (int i = 0; i < 10; i++) cout << 100*candidates_[i]->fitness << " "; cout << endl;
 	candidates_.resize(POP_SIZE, new candidate_t());
+	sort(candidates_.begin(), candidates_.end(), compare);
 }
 
 candidate_t* population_t::get_fittest() {
@@ -93,6 +93,9 @@ candidate_t::candidate_t(poly_t *parent1, poly_t *parent2) {
 		if (RAND < MUTATE_CHANCE)
 			dna[i].color.b += RAND * MUTATE_AMOUNT * 2 - MUTATE_AMOUNT;
 
+		if (RAND < MUTATE_CHANCE)
+			dna[i].color.alpha += RAND * MUTATE_AMOUNT * 2 - MUTATE_AMOUNT;
+
 		for (int j = 0; j < NUM_VERT; j++) {
 	 		if (RAND < MUTATE_CHANCE) {
 				dna[i].verts[j].x = RAND * MUTATE_AMOUNT * 2 - MUTATE_AMOUNT;
@@ -112,7 +115,6 @@ candidate_t::candidate_t(poly_t *parent1, poly_t *parent2) {
 double candidate_t::calc_fitness() {
   Color pr;
   int diff = 0;
-  //replica = new Image(Geometry(IMAGE_WIDTH, IMAGE_HEIGHT), "black");
   draw();
   
   for (int i = 0; i < IMAGE_WIDTH; i++)

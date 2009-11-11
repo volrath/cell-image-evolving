@@ -14,7 +14,7 @@ int main() {
 	printf("  Fitness: %f %%\n", (double) best->fitness * 100);
 	best->write();
 	
-	for (int count = 1; ; count++) {
+	for (int count = 0; ; count++) {
 		printf("Generando poblacion... [%d]\n", count);
 		pop->next_generation();
 		

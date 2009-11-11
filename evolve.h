@@ -9,7 +9,7 @@
 #define IMAGE_WIDTH  128
 #define IMAGE_HEIGHT 128
 #define POP_SIZE 42
-#define NUM_POLY 100
+#define NUM_POLY 104
 #define NUM_VERT 6
 #define PARENT_CUT_OFF .20
 #define NUM_COOL_PARENTS POP_SIZE * PARENT_CUT_OFF
