@@ -1,5 +1,6 @@
 #include "evolve.h"
 
+
 int file = 0;
 Image original;
 Image replica(Geometry(IMAGE_WIDTH, IMAGE_HEIGHT), "white");
@@ -148,9 +149,9 @@ double candidate_t::calc_fitness() {
 		for (int j = 0; j < IMAGE_HEIGHT; j++) {
 			pr = replica.pixelColor(i, j);
 			
-			diff += abs((unsigned short int) px_original[i][j].r - ((unsigned short int) pr.redQuantum()   >> 8));
-			diff += abs((unsigned short int) px_original[i][j].g - ((unsigned short int) pr.greenQuantum() >> 8));
-			diff += abs((unsigned short int) px_original[i][j].b - ((unsigned short int) pr.blueQuantum()  >> 8));
+			diff += abs((unsigned short int) px_original[i][j].r - ((unsigned short int) pr.redQuantum()));
+			diff += abs((unsigned short int) px_original[i][j].g - ((unsigned short int) pr.greenQuantum()));
+			diff += abs((unsigned short int) px_original[i][j].b - ((unsigned short int) pr.blueQuantum()));
 		}
 
 	return 1. - (double) diff / (double) (IMAGE_HEIGHT * IMAGE_WIDTH * 3 * 255);
@@ -163,9 +164,9 @@ void candidate_t::draw() {
 		list<Coordinate> poly_coords;
 		for (int j = 0; j < NUM_VERT; j++)
 			poly_coords.push_back(Coordinate(dna[i].verts[j].x, dna[i].verts[j].y));
-
+		Color c(dna[i].color.r, dna[i].color.g, dna[i].color.b);
 		polygons.push_back(DrawableFillOpacity((double)(dna[i].color.alpha / 255.0)));
-		polygons.push_back(DrawableFillColor(Color(dna[i].color.r << 8, dna[i].color.g << 8, dna[i].color.b << 8, MaxRGB >> 2)));
+		polygons.push_back(DrawableFillColor(c));
 		polygons.push_back(DrawablePolygon(poly_coords));
 	}
 	

@@ -14,13 +14,13 @@ int main(int argc, char** argv) {
 		pop->next_generation();
 		
 		fittest = pop->get_fittest();
-		if (fittest->fitness > best_fitness)
-			best_fitness = fittest->fitness;
+		if (fittest->fitness > best_fitness) {
+		  fittest->write();
+		  best_fitness = fittest->fitness;
+		}
 
 		printf("  Fitness: %f %%\n", (double) fittest->fitness * 100);
 		printf("  Best:    %f %%\n", (double) best_fitness * 100);
 		
-		if (count % 5 == 0)
-			fittest->write();
 	}
 }
