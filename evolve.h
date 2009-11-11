@@ -8,8 +8,8 @@
 
 #define IMAGE_WIDTH  128
 #define IMAGE_HEIGHT 128
-#define POP_SIZE 20
-#define NUM_POLY 10
+#define POP_SIZE 30
+#define NUM_POLY 50
 #define NUM_VERT 6
 #define PARENT_CUT_OFF .25
 #define NUM_COOL_PARENTS candidates_.size() * PARENT_CUT_OFF

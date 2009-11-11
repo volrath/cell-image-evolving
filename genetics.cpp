@@ -1,8 +1,5 @@
 #include "evolve.h"
 
-using namespace std;
-using namespace Magick;
-
 Image replica(Geometry(IMAGE_WIDTH, IMAGE_HEIGHT), "white");
 Image original("media/firefox.jpg");
 color_t px_original[IMAGE_WIDTH][IMAGE_HEIGHT];
