@@ -92,7 +92,7 @@ class population_t {
 public:
 	vector<candidate_t*> candidates_;
 
-	population_t();
+	population_t(char*);
 	void next_generation();
 	candidate_t* get_fittest();
 };

@@ -1,10 +1,13 @@
 #include "evolve.h"
 
-int main() {
+int main(int argc, char** argv) {
 	candidate_t *fittest;
 	population_t *pop;
-	pop = new population_t();
-	double best_fitness = .0;
+	char* in_file;
+	double best_fitness = 0.;
+
+	in_file = "media/firefox.jpg";
+	pop = new population_t(argc == 1 ? in_file : argv[1]);
 	
 	for (int count = 0;; count++) {
 		printf("[%d] Generando poblacion...\n", count);
