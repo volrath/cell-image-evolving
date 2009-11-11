@@ -69,19 +69,6 @@ void population_t::next_generation() {
 
 candidate_t* population_t::get_fittest() {
 	sort(candidates_.begin(), candidates_.end(), compare);
-/*
- if (candidates_[0]->fitness > best)
-		best = candidates_[0]->fitness;
-	else
-		it++;
-	if (fact > .02)
-		fact = .0;
-	if (it > 5) {
-		fact += .0025;
-		it = 0;
-		printf("  Mutate Chance: %f\n", MUTATE_CHANCE + fact);
-	}
-*/
 	return candidates_[0];
 }
 
