@@ -109,6 +109,7 @@ candidate_t::candidate_t(double *parent1, double *parent2) {
 	if (val < 0.0) val = 0.0;
 	if (val > 1.0) val = 1.0;
       }
+      dna[i+j] = val;
     }
   }
   fitness = calc_fitness();
@@ -137,10 +138,11 @@ void candidate_t::draw() {
   for (int i = 0; i < DNA_LENGTH; i += POLY_LENGTH) {
     list<Coordinate> poly_coords;
     for (int j = 0; j < NUM_VERT; j++) {
-      poly_coords.push_back(Coordinate((int)round(dna[i+4+j*2]), (int)round(dna[i+5+j*2])));
+      //cout << (int)round(dna[i+4+j*2] * IMAGE_WIDTH) << " " << (int)round(dna[i+5+j*2] * IMAGE_HEIGHT) << endl;
+      poly_coords.push_back(Coordinate((int)round(dna[i+4+j*2] * IMAGE_WIDTH), (int)round(dna[i+5+j*2] * IMAGE_HEIGHT)));
     }
 
-    Color c((int)round(dna[i]), (int)round(dna[i+1]), (int)round(dna[i+2]));
+    Color c((int)round(dna[i] * MaxRGB), (int)round(dna[i+1] * MaxRGB), (int)round(dna[i+2] * MaxRGB));
     polygons.push_back(DrawableFillOpacity((double)dna[i+3]));
     polygons.push_back(DrawableFillColor(c));
     polygons.push_back(DrawablePolygon(poly_coords));
