@@ -152,11 +152,12 @@ void candidate_t::draw() {
 }
 
 void candidate_t::write() {
-	printf("    Dibujando... ");
-	char *s;
-	s = new char[30];
-	sprintf(s, "replicas/image%d.jpg", file++);
-	printf("%s\n", s);
-	draw();
-	replica.write(s);
+  char *s = new char[30];
+  printf("    Dibujando... ");
+  sprintf(s, "replicas/image%d.jpg", file++);
+  printf("%s\n", s);
+  draw();
+  
+  replica.write(s);
+  delete [] s;
 }
