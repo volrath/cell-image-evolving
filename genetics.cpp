@@ -35,8 +35,12 @@ population_t::population_t(char* file) {
 		exit(1);
 	}
 	
-	for (int i = 0; i < POP_SIZE; i++)
-		candidates_.push_back(new candidate_t());
+
+	for (int i = 0; i < POP_SIZE; i++) {
+	  candidate_t *cand;
+	  cand = new candidate_t();
+	  candidates_.push_back(cand);
+	}
 
 	Color px;
 	for (int i = 0; i < IMAGE_WIDTH; i++)
@@ -53,7 +57,7 @@ void population_t::next_generation() {
 	vector<candidate_t*> offspring;
 	
 	for (int i = 0; i < NUM_COOL_PARENTS; i++) {
-		poly_t *dna;
+		double *dna;
 		dna = candidates_[i]->dna;
 		for (int j = 0; j < NUM_CHILDREN; j++) {
 			int rnd_candidate = i;
@@ -64,6 +68,7 @@ void population_t::next_generation() {
 			offspring.push_back(cand);
 		}
 	}
+	candidates_.clear();
 	candidates_ = offspring;
 }
 
@@ -74,77 +79,46 @@ candidate_t* population_t::get_fittest() {
 
 /******************************** Candidate_t *********************************/
 candidate_t::candidate_t() {
-	dna = new poly_t[NUM_POLY];
-	for (int i = 0; i < NUM_POLY; i++) {
-		dna[i].color.r = rand() % 256;
-		dna[i].color.g = rand() % 256;
-		dna[i].color.b = rand() % 256;
-		dna[i].color.alpha = rand() % 256;
-		
-		for (int j = 0; j < NUM_VERT; j++) {
-			dna[i].verts[j].x = rand() % 128;
-			dna[i].verts[j].y = rand() % 128;
-		}
-	}
-	
-	fitness = calc_fitness();
+  dna = (double *)malloc(DNA_LENGTH * sizeof(double));
+  double px, py;
+  for (int i = 0; i < DNA_LENGTH; i += POLY_LENGTH) {
+    dna[i+0] = RAND;
+    dna[i+1] = RAND;
+    dna[i+2] = RAND;
+    dna[i+3] = max(0.2, RAND * RAND);
+    px = RAND; py = RAND;
+
+    for(int j = 0; j < NUM_VERT; j++) {
+      dna[i+4+j*2] = px + (RAND - 0.5); dna[i+4+j*2] = dna[i+4+j*2] < 0.0 ? dna[i+4+j*2] * -1 : dna[i+4+j*2];
+      dna[i+5+j*2] = py + (RAND - 0.5); dna[i+5+j*2] = dna[i+5+j*2] < 0.0 ? dna[i+5+j*2] * -1 : dna[i+5+j*2];
+    }
+  }
+  fitness = calc_fitness();
 }
 
-candidate_t::candidate_t(poly_t *parent1, poly_t *parent2) {
-	dna = new poly_t[NUM_POLY];
-	for (int i = 0; i < NUM_POLY; i++) {
-		dna[i] = (RAND < .5) ? clone(parent1[i]) : clone(parent2[i]);
-		
-		int diff;
-		if (RAND < MUTATE_CHANCE) {
-			diff = dna[i].color.r + 256 * MUTATE_AMOUNT * (2 * RAND - 1.);
-			if (diff > 255) dna[i].color.r = 255;
-			else if (diff < 0) dna[i].color.r = 0;
-			else dna[i].color.r = diff;
-		}
-		
-		if (RAND < MUTATE_CHANCE) {
-			diff = dna[i].color.g + 256 * MUTATE_AMOUNT * (2 * RAND - 1.);
-			if (diff > 255) dna[i].color.g = 255;
-			else if (diff < 0) dna[i].color.g = 0;
-			else dna[i].color.g = diff;
-		}
-		
-		if (RAND < MUTATE_CHANCE) {
-			diff = dna[i].color.b + 256 * MUTATE_AMOUNT * (2 * RAND - 1.);
-			if (diff > 255) dna[i].color.b = 255;
-			else if (diff < 0) dna[i].color.b = 0;
-			else dna[i].color.b = diff;
-		}
+candidate_t::candidate_t(double *parent1, double *parent2) {
+  dna = (double *)malloc(DNA_LENGTH * sizeof(double));
+  double *parent, val;
+  for (int i = 0; i < DNA_LENGTH; i += POLY_LENGTH) {
+    parent = (RAND < 0.5) ? parent1 : parent2;
 
-		if (RAND < MUTATE_CHANCE)
-			dna[i].color.alpha += RAND * MUTATE_AMOUNT * 2 - MUTATE_AMOUNT;
-
-		for (int j = 0; j < NUM_VERT; j++) {
-			if (RAND < MUTATE_CHANCE) {
-				diff = dna[i].verts[j].x + 128 * MUTATE_AMOUNT * (2 * RAND - 1.);
-				if (diff > 127) dna[i].verts[j].x = 127;
-				else if (diff < 0) dna[i].verts[j].x = 0;
-				else dna[i].verts[j].x = diff;
-			}
-
-			if (RAND < MUTATE_CHANCE) {
-				diff = dna[i].verts[j].y + 128 * MUTATE_AMOUNT * (2 * RAND - 1.);
-				if (diff > 127) dna[i].verts[j].y = 127;
-				else if (diff < 0) dna[i].verts[j].y = 0;
-				else dna[i].verts[j].y = diff;
-			}
-		}
-	}
-	
-	fitness = calc_fitness();
+    for (int j = 0; j < POLY_LENGTH; j++) {
+      val = parent[i+j];
+      if (RAND < MUTATE_CHANCE) {
+	val += RAND * MUTATE_AMOUNT * 2 - MUTATE_AMOUNT;
+	if (val < 0.0) val = 0.0;
+	if (val > 1.0) val = 1.0;
+      }
+    }
+  }
+  fitness = calc_fitness();
 }
 
 double candidate_t::calc_fitness() {
 	int diff = 0;
-	Color pr;
 	draw();
 
+	Color pr;
 	for (int i = 0; i < IMAGE_WIDTH; i++)
 		for (int j = 0; j < IMAGE_HEIGHT; j++) {
 			pr = replica.pixelColor(i, j);
@@ -158,20 +132,21 @@ double candidate_t::calc_fitness() {
 }
 
 void candidate_t::draw() {
-	list<Drawable> polygons;
-	
-	for (int i = 0; i < NUM_POLY; i++) {
-		list<Coordinate> poly_coords;
-		for (int j = 0; j < NUM_VERT; j++)
-			poly_coords.push_back(Coordinate(dna[i].verts[j].x, dna[i].verts[j].y));
-		Color c(dna[i].color.r, dna[i].color.g, dna[i].color.b);
-		polygons.push_back(DrawableFillOpacity((double)(dna[i].color.alpha / 255.0)));
-		polygons.push_back(DrawableFillColor(c));
-		polygons.push_back(DrawablePolygon(poly_coords));
-	}
-	
-	replica.erase();
-	replica.draw(polygons);
+  list<Drawable> polygons;
+  
+  for (int i = 0; i < DNA_LENGTH; i += POLY_LENGTH) {
+    list<Coordinate> poly_coords;
+    for (int j = 0; j < NUM_VERT; j++) {
+      poly_coords.push_back(Coordinate((int)round(dna[i+4+j*2]), (int)round(dna[i+5+j*2])));
+    }
+
+    Color c((int)round(dna[i]), (int)round(dna[i+1]), (int)round(dna[i+2]));
+    polygons.push_back(DrawableFillOpacity((double)dna[i+3]));
+    polygons.push_back(DrawableFillColor(c));
+    polygons.push_back(DrawablePolygon(poly_coords));
+  }
+  replica.erase();
+  replica.draw(polygons);
 }
 
 void candidate_t::write() {

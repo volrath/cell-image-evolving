@@ -1,5 +1,7 @@
 #include "evolve.h"
 
+using namespace std;
+
 int main(int argc, char** argv) {
 	candidate_t *fittest;
 	population_t *pop;

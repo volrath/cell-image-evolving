@@ -3,20 +3,25 @@
 #include <stdlib.h>
 #include <Magick++.h>
 #include <iostream>
+#include <algorithm>
 #include <vector>
 #include <list>
 
 #define IMAGE_WIDTH  128
 #define IMAGE_HEIGHT 128
+
 #define POP_SIZE 42
 #define NUM_POLY 104
 #define NUM_VERT 6
+#define POLY_LENGTH 16 // 4 + NUM_VERT * 2
+#define DNA_LENGTH 1664
+
 #define PARENT_CUT_OFF .25
 #define NUM_COOL_PARENTS POP_SIZE * PARENT_CUT_OFF
 #define NUM_CHILDREN 1 / PARENT_CUT_OFF
 #define MUTATE_CHANCE .02
 #define MUTATE_AMOUNT .1
-#define RAND ((double) (rand() % 100000)) / 100000.
+#define RAND ((double)(rand() % 10000 / 10000.))
 
 using namespace std;
 using namespace Magick;
@@ -79,10 +84,11 @@ inline ostream& operator<<(ostream &os, const poly_t &s) {
 class candidate_t {
 public:
 	double fitness;
-	poly_t *dna;
+	//poly_t dna[NUM_POLY];
+	double *dna;
 
 	candidate_t();
-	candidate_t(poly_t*, poly_t*);
+	candidate_t(double*, double*);
 	double calc_fitness();
 	void draw();
 	void write();
