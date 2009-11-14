@@ -10,18 +10,18 @@
 #define IMAGE_WIDTH  128
 #define IMAGE_HEIGHT 128
 
-#define POP_SIZE 42
-#define NUM_POLY 104
+#define POP_SIZE 36 // Múltiplo de NUM_CHILDREN y múltiplo de 6 (SPEs)
+#define NUM_POLY 48 // Múltiplo de 8 ((POLY_LENGTH * NUM_POLY) % 128 == 0)
 #define NUM_VERT 6
-#define POLY_LENGTH 16 // 4 + NUM_VERT * 2
-#define DNA_LENGTH 1664
+#define POLY_LENGTH (4 + NUM_VERT * 2)
+#define DNA_LENGTH  (NUM_POLY * POLY_LENGTH)
 
-#define PARENT_CUT_OFF .25
-#define NUM_COOL_PARENTS POP_SIZE * PARENT_CUT_OFF
-#define NUM_CHILDREN 1 / PARENT_CUT_OFF
 #define MUTATE_CHANCE .02
 #define MUTATE_AMOUNT .1
-#define RAND ((double)(rand() % 10000 / 10000.))
+#define NUM_CHILDREN  4
+#define NUM_COOL_PARENTS (POP_SIZE / NUM_CHILDREN)
+#define RGB_BITS (MaxRGB == 255 ? 0 : 8)
+#define RAND ((double) (rand() % 10000 / 10000.))
 
 using namespace std;
 using namespace Magick;
@@ -37,55 +37,13 @@ struct color_t {
     g = (unsigned char) px.greenQuantum();
     b = (unsigned char) px.blueQuantum();
     alpha = (unsigned char) px.alphaQuantum();
-  };
-
-  void print(ostream &os) const {
-    os << "[ " << (unsigned short int)r << ", " << (unsigned short int)g << ", " << (unsigned short int)b << ", " << (unsigned short int)alpha << " ]";
-  };
-
+  }
 };
-
-inline ostream& operator<<(ostream &os, const color_t &s) {
-	s.print(os);
-	return(os);
-};
-
-struct vert_t {
-  unsigned char x;
-  unsigned char y;
-
-  void print(ostream &os) const {
-		os << "(" << (unsigned short int) x << "," << (unsigned short int) y << ") ";
-	};
-
-};
-
-inline ostream& operator<<(ostream &os, const vert_t &s) {
-	s.print(os);
-	return(os);
-}
-
-struct poly_t {
-  color_t color;
-  vert_t verts[NUM_VERT];
-
-  void print(ostream &os) const {
-    os << color << " | ";
-    for (int i = 0; i < NUM_VERT; i++)
-      os << verts[i];
-  };
-};
-
-inline ostream& operator<<(ostream &os, const poly_t &s) {
-	s.print(os);
-	return(os);
-}
 
 class candidate_t {
 public:
 	double fitness;
-	//poly_t dna[NUM_POLY];
-	double *dna;
+	double dna[DNA_LENGTH];
 
 	candidate_t();
 	candidate_t(double*, double*);
@@ -96,7 +54,7 @@ public:
 
 class population_t {
 public:
-	vector<candidate_t*> candidates_;
+	candidate_t* candidates[POP_SIZE];
 
 	population_t(char*);
 	void next_generation();
