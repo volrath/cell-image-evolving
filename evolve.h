@@ -1,6 +1,7 @@
 #include <time.h>
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 #include <Magick++.h>
 #include <iostream>
 #include <algorithm>
