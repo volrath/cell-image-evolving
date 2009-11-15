@@ -55,28 +55,23 @@ candidate_t* population_t::get_fittest() {
 
 /******************************** Candidate_t *********************************/
 candidate_t::candidate_t() {
-	double px, py;
-
 	for (int i = 0; i < DNA_LENGTH; i += POLY_LENGTH) {
 		dna[i+0] = RAND;
 		dna[i+1] = RAND;
 		dna[i+2] = RAND;
 		dna[i+3] = max(.2, RAND * RAND);
-		px = RAND; py = RAND;
 
 		for(int j = 0; j < NUM_VERT; j++) {
-			dna[i+4+j*2] = px + (RAND - 0.5);
-			dna[i+4+j*2] = dna[i+4+j*2] < 0. ? dna[i+4+j*2] * -1 : dna[i+4+j*2];
-			dna[i+5+j*2] = py + (RAND - 0.5);
-			dna[i+5+j*2] = dna[i+5+j*2] < 0. ? dna[i+5+j*2] * -1 : dna[i+5+j*2];
+			dna[i+4+j*2] = RAND;
+			dna[i+5+j*2] = RAND;
 		}
 	}
 
 	fitness = calc_fitness();
 }
 
-candidate_t::candidate_t(double *parent1, double *parent2) {
-	double *parent, val;
+candidate_t::candidate_t(float *parent1, float *parent2) {
+	float *parent, val;
 	for (int i = 0; i < DNA_LENGTH; i += POLY_LENGTH) {
 		parent = (RAND < 0.5) ? parent1 : parent2;
 
@@ -94,7 +89,7 @@ candidate_t::candidate_t(double *parent1, double *parent2) {
 	fitness = calc_fitness();
 }
 
-double candidate_t::calc_fitness() {
+float candidate_t::calc_fitness() {
 	int diff = 0;
 	draw();
 
@@ -108,7 +103,7 @@ double candidate_t::calc_fitness() {
 			diff += abs((unsigned short int) px_original[i][j].b - ((unsigned short int) pr.blueQuantum()  >> RGB_BITS));
 		}
 
-	return 1. - (double) diff / (double) (IMAGE_HEIGHT * IMAGE_WIDTH * 3 * 255);
+	return 1. - (float) diff / (float) (IMAGE_HEIGHT * IMAGE_WIDTH * 3 * 255);
 }
 
 void candidate_t::draw() {

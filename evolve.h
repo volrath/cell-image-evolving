@@ -43,12 +43,12 @@ struct color_t {
 
 class candidate_t {
 public:
-	double fitness;
-	double dna[DNA_LENGTH];
+	float fitness;
+	float dna[DNA_LENGTH];
 
 	candidate_t();
-	candidate_t(double*, double*);
-	double calc_fitness();
+	candidate_t(float*, float*);
+	float calc_fitness();
 	void draw();
 	void write();
 };

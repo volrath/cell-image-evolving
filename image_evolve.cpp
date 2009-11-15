@@ -7,7 +7,7 @@ int main(int argc, char** argv) {
 	population_t *pop;
 	int it;
 	char* in_file;
-	double best_fitness = 0.;
+	float best_fitness = 0.;
 
 	it = 100000;
 	in_file = "media/firefox.jpg";
@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
 		  best_fitness = fittest->fitness;
 		}
 
-		printf("  Fitness: %f %%\n", (double) fittest->fitness * 100);
-		printf("  Best:    %f %%\n", (double) best_fitness * 100);
+		printf("  Fitness: %f %%\n", (float) fittest->fitness * 100);
+		printf("  Best:    %f %%\n", (float) best_fitness * 100);
 	}
 }
