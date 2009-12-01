@@ -1,5 +1,6 @@
 #include <time.h>
 #include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <Magick++.h>
@@ -8,7 +9,6 @@
 #include <vector>
 #include <list>
 #include <pthread.h>
-#include <spu_mfcio.h>
 #include <sched.h>
 #include <errno.h>
 #include <libspe2.h>
@@ -32,6 +32,16 @@
 using namespace std;
 using namespace Magick;
 
+typedef struct ppu_pthread_data{
+   spe_context_ptr_t context;
+   pthread_t pthread;
+   unsigned int entry;
+   unsigned int flags;
+   void *argp;
+   void *envp;
+   spe_stop_info_t stopinfo;
+}  ppu_pthread_data_t;
+
 struct color_t {
   unsigned char r;
   unsigned char g;
@@ -52,7 +62,7 @@ public:
 	float dna[DNA_LENGTH];
 
 	candidate_t();
-	candidate_t(float*, float*);
+	candidate_t(float*, float*, ppu_pthread_data_t*);
 	float calc_fitness();
 	void draw();
 	void write();
@@ -68,12 +78,3 @@ public:
 };
 
 
-typedef struct ppu_pthread_data{
-   spe_context_ptr_t context;
-   pthread_t pthread;
-   unsigned int entry;
-   unsigned int flags;
-   void *argp;
-   void *envp;
-   spe_stop_info_t stopinfo;
-}  ppu_pthread_data_t;

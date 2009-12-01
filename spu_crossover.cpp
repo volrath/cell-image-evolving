@@ -1,9 +1,8 @@
-#include "simpleDMA.h"
 #include <spu_mfcio.h>
 #include <stdio.h>
 
 /* here's the local copy of the control block, to be filled by the DMA */
-control_block cb __attribute__ ((aligned (128)));
+//control_block cb __attribute__ ((aligned (128)));
 
 int main(unsigned long long speid, unsigned long long argp, unsigned long long  envp) 
 {
