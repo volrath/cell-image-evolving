@@ -7,6 +7,11 @@
 #include <algorithm>
 #include <vector>
 #include <list>
+#include <pthread.h>
+#include <spu_mfcio.h>
+#include <sched.h>
+#include <errno.h>
+#include <libspe2.h>
 
 #define IMAGE_WIDTH  128
 #define IMAGE_HEIGHT 128
@@ -19,7 +24,7 @@
 
 #define MUTATE_CHANCE .02
 #define MUTATE_AMOUNT .1
-#define NUM_CHILDREN  4
+#define NUM_CHILDREN  6
 #define NUM_COOL_PARENTS (POP_SIZE / NUM_CHILDREN)
 #define RGB_BITS (MaxRGB == 255 ? 0 : 8)
 #define RAND ((double) (rand() % 10000 / 10000.))
@@ -61,3 +66,14 @@ public:
 	void next_generation();
 	candidate_t* get_fittest();
 };
+
+
+typedef struct ppu_pthread_data{
+   spe_context_ptr_t context;
+   pthread_t pthread;
+   unsigned int entry;
+   unsigned int flags;
+   void *argp;
+   void *envp;
+   spe_stop_info_t stopinfo;
+}  ppu_pthread_data_t;

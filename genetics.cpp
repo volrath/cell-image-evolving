@@ -5,8 +5,16 @@ Image original;
 Image replica(Geometry(IMAGE_WIDTH, IMAGE_HEIGHT), "white");
 color_t px_original[IMAGE_WIDTH][IMAGE_HEIGHT];
 
+extern spe_program_handle_t spu_crossover;
+
 bool compare(candidate_t *a, candidate_t *b) {
 	return a->fitness > b->fitness;
+}
+
+void *ppu_crossover(void *args) {
+  ppu_pthread_data_t *data = (ppu_pthread_data_t *) arg;
+  spe_context_run(data->context,&data->entry,0,data->argp,data->envp,NULL);
+  pthread_exit(NULL);
 }
 
 /******************************** Population_t ********************************/
@@ -35,14 +43,20 @@ population_t::population_t(char* file) {
 void population_t::next_generation() {
 	sort(candidates, candidates + POP_SIZE, compare);
 	candidate_t* offspring[POP_SIZE];
+	ppu_pthread_data_t datap[NUM_CHILDREN];
 	
-	for (int i = 0; i < NUM_COOL_PARENTS; i++)
+	for (int i = 0; i < NUM_COOL_PARENTS; i++) {
 		for (int j = 0; j < NUM_CHILDREN; j++) {
 			int rnd_candidate = i;
 			while (rnd_candidate == i)
 				rnd_candidate = floor(RAND * NUM_COOL_PARENTS);
-			offspring[i * NUM_CHILDREN + j] = new candidate_t(candidates[i]->dna, candidates[rnd_candidate]->dna);
+			offspring[i * NUM_CHILDREN + j] = new candidate_t(candidates[i]->dna, candidates[rnd_candidate]->dna, &datap[j]);
 		}
+		for (int j = 0; j < NUM_CHILDREN; j++) {
+		  pthread_join(datap[j].pthread,NULL);
+		  spe_context_destroy(datap[j].context);
+		}
+	}
 	
 	for (int i = 0; i < POP_SIZE; i++)
 		candidates[i] = offspring[i];
@@ -70,8 +84,16 @@ candidate_t::candidate_t() {
 	fitness = calc_fitness();
 }
 
-candidate_t::candidate_t(float *parent1, float *parent2) {
-	float *parent, val;
+candidate_t::candidate_t(float *parent1, float *parent2, ppu_pthread_data_t *datap) {
+  datap->context = spe_context_create(0,NULL);
+  spe_program_load(datap[i].context,&spu_crossover);
+  datap->entry = SPE_DEFAULT_ENTRY;
+  datap->argp = (void *) buffer;
+  datap->flags = 0;
+  datap->envp = (void *) 128;
+  pthread_create(&pthread,NULL,&ppu_pthread_function,&datap);
+
+  float *parent, val;
 	for (int i = 0; i < DNA_LENGTH; i += POLY_LENGTH) {
 		parent = (RAND < 0.5) ? parent1 : parent2;
 
