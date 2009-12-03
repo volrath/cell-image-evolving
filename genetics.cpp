@@ -16,9 +16,15 @@ bool compare(candidate_t *a, candidate_t *b) {
 
 void *ppu_crossover(void *arg) {
   ppu_pthread_data_t *data = (ppu_pthread_data_t *) arg;
-  spe_context_run(data->context,&(data->entry),0,NULL, NULL, NULL); //data->argp,data->envp,NULL);
+  spe_context_run(data->context,&(data->entry),0, data->argp,data->envp,NULL);
   pthread_exit(NULL);
 }
+
+typedef struct {
+  float *p1;
+  float *p2;
+  char dummy[120]; // CREO QUE ES PARA QUE MIDA 128
+} pair_parents_t;
 
 /******************************** Population_t ********************************/
 population_t::population_t(char* file) {
@@ -53,11 +59,7 @@ void population_t::next_generation() {
 			int rnd_candidate = i;
 			while (rnd_candidate == i)
 				rnd_candidate = (int) floor(RAND * NUM_COOL_PARENTS);
-			offspring[i * NUM_CHILDREN + j] = new candidate_t(candidates[i]->dna, candidates[rnd_candidate]->dna, &datap[j]);
-		}
-		for (int j = 0; j < NUM_CHILDREN; j++) {
-		  pthread_join(datap[j].pthread,NULL);
-		  spe_context_destroy(datap[j].context);
+			offspring[i * NUM_CHILDREN + j] = new candidate_t(candidates[i]->dna, candidates[rnd_candidate]->dna, &datap[j], j);
 		}
 	}
 	
@@ -87,31 +89,47 @@ candidate_t::candidate_t() {
 	fitness = calc_fitness();
 }
 
-candidate_t::candidate_t(float *parent1, float *parent2, ppu_pthread_data_t *datap) {
+candidate_t::candidate_t(float *parent1, float *parent2, ppu_pthread_data_t *datap, int x) {
+  float p1[DNA_LENGTH] __attribute__((aligned(128)));
+  float p2[DNA_LENGTH] __attribute__((aligned(128)));
+  for (int i = 0; i < DNA_LENGTH; i++) { p1[i] = parent1[i]; p2[i] = parent2[i]; }
+
+  pair_parents_t parents __attribute__((aligned(128)));
+  parents.p1 = p1;
+  parents.p2 = p2;
+
+  printf("ppu #%d parents: %f %f %x\n", x, parents.p1[0], parents.p2[0], parents.p2);
+
   datap->context = spe_context_create(0,NULL);
   spe_program_load(datap->context,&spu_crossover_handle);
   datap->entry = SPE_DEFAULT_ENTRY;
-  datap->argp = NULL;
-  datap->flags = 0;
+  datap->argp = (void *) &parents;
+  //datap->flags = 0;
   datap->envp = (void *) 128;
   pthread_create(&(datap->pthread),NULL,&ppu_crossover,datap);
+  spe_in_mbox_write(datap->context, (unsigned int *)&x, 1, SPE_MBOX_ANY_NONBLOCKING);
+
+  for (int j = 0; j < 1; j++) {
+    pthread_join(datap->pthread,NULL);
+    spe_context_destroy(datap->context);
+  }
 
   float *parent, val;
-	for (int i = 0; i < DNA_LENGTH; i += POLY_LENGTH) {
-		parent = (RAND < 0.5) ? parent1 : parent2;
+  for (int i = 0; i < DNA_LENGTH; i += POLY_LENGTH) {
+    parent = (RAND < 0.5) ? parent1 : parent2;
 
-		for (int j = 0; j < POLY_LENGTH; j++) {
-			val = parent[i+j];
-			if (RAND < MUTATE_CHANCE) {
-				val += RAND * MUTATE_AMOUNT * 2 - MUTATE_AMOUNT;
-				if (val < 0.) val = 0.;
-				if (val > 1.) val = 1.;
-			}
-			dna[i+j] = val;
-		}
-	}
-
-	fitness = calc_fitness();
+    for (int j = 0; j < POLY_LENGTH; j++) {
+      val = parent[i+j];
+      if (RAND < MUTATE_CHANCE) {
+	val += RAND * MUTATE_AMOUNT * 2 - MUTATE_AMOUNT;
+	if (val < 0.) val = 0.;
+	if (val > 1.) val = 1.;
+      }
+      dna[i+j] = val;
+    }
+  }
+  
+  fitness = calc_fitness();
 }
 
 float candidate_t::calc_fitness() {

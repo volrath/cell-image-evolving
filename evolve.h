@@ -62,7 +62,7 @@ public:
 	float dna[DNA_LENGTH];
 
 	candidate_t();
-	candidate_t(float*, float*, ppu_pthread_data_t*);
+	candidate_t(float*, float*, ppu_pthread_data_t*, int);
 	float calc_fitness();
 	void draw();
 	void write();

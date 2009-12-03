@@ -1,11 +1,31 @@
 #include <spu_mfcio.h>
 #include <stdio.h>
 
-/* here's the local copy of the control block, to be filled by the DMA */
-//control_block cb __attribute__ ((aligned (128)));
+typedef struct {
+  float *p1;
+  float *p2;
+  char dummy[120]; // CREO QUE ES PARA QUE MIDA 128
+} pair_parents_t;
 
-int main(unsigned long long speid, unsigned long long argp, unsigned long long  envp) 
-{
+int main(unsigned long long speid, unsigned long long argp, unsigned long long  envp) {
+  pair_parents_t parents __attribute__((aligned(128)));
+  float p1[768] __attribute__((aligned(128)));
+  float p2[768] __attribute__((aligned(128)));
+
+  unsigned int spu_id = spu_read_in_mbox(); // De verdad no se si quiero esto;
+  int tag = 1, tag_mask = 1 << tag;
+
+  mfc_get(&parents, (unsigned int) argp, envp, tag, 0, 0);
+  mfc_write_tag_mask(tag_mask);
+  mfc_read_tag_status_all();
+
+  printf("%x\n", parents.p2);
+  mfc_get(p1, parents.p1, sizeof(p1), tag, 0, 0);
+  mfc_get(p2, parents.p2, sizeof(p2), tag, 0, 0);
+  mfc_read_tag_status_all();
+
+  printf("spu #%d parents: %f %f\n", spu_id, p1[0], p2[0]);
+
 
 //   /* here is the actual DMA call */
 //   /* the first parameter is the address in local store to place the data */
@@ -27,8 +47,5 @@ int main(unsigned long long speid, unsigned long long argp, unsigned long long  
 //   /* now, issue the read and wait to guarantee DMA completion before we continue. */
 
 //   mfc_read_tag_status_all();
-
-  printf("address received through control \n");
-
   return 0;
 }
