@@ -59,7 +59,7 @@ struct color_t {
 class candidate_t {
 public:
 	float fitness;
-	float dna[DNA_LENGTH];
+	float dna[DNA_LENGTH] __attribute__ ((aligned(128)));
 
 	candidate_t();
 	candidate_t(float*, float*, ppu_pthread_data_t*, int);
