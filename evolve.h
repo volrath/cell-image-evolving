@@ -1,3 +1,4 @@
+#include "defines.h"
 #include <time.h>
 #include <math.h>
 #include <stdio.h>
@@ -16,30 +17,17 @@
 #define IMAGE_WIDTH  128
 #define IMAGE_HEIGHT 128
 
-#define POP_SIZE 36 // Múltiplo de NUM_CHILDREN y múltiplo de 6 (SPEs)
-#define NUM_POLY 48 // Múltiplo de 8 ((POLY_LENGTH * NUM_POLY) % 128 == 0)
-#define NUM_VERT 6
-#define POLY_LENGTH (4 + NUM_VERT * 2)
-#define DNA_LENGTH  (NUM_POLY * POLY_LENGTH)
-
-#define MUTATE_CHANCE .02
-#define MUTATE_AMOUNT .1
-#define NUM_CHILDREN  6
-#define NUM_COOL_PARENTS (POP_SIZE / NUM_CHILDREN)
-#define RGB_BITS (MaxRGB == 255 ? 0 : 8)
-#define RAND ((double) (rand() % 10000 / 10000.))
-
 using namespace std;
 using namespace Magick;
 
 typedef struct ppu_pthread_data{
-   spe_context_ptr_t context;
-   pthread_t pthread;
-   unsigned int entry;
-   unsigned int flags;
-   void *argp;
-   void *envp;
-   spe_stop_info_t stopinfo;
+	spe_context_ptr_t context;
+	pthread_t pthread;
+	unsigned int entry;
+	void *argp;
+	void *envp;
+	spe_stop_info_t stopinfo;
+	pair_parents_t *parents;
 }  ppu_pthread_data_t;
 
 struct color_t {
@@ -58,11 +46,11 @@ struct color_t {
 
 class candidate_t {
 public:
+	float *dna;
 	float fitness;
-	float dna[DNA_LENGTH] __attribute__ ((aligned(128)));
 
 	candidate_t();
-	candidate_t(float*, float*, ppu_pthread_data_t*, int);
+	candidate_t(pair_parents_t*, ppu_pthread_data_t*, int);
 	float calc_fitness();
 	void draw();
 	void write();

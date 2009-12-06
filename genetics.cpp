@@ -18,13 +18,6 @@ void *ppu_crossover(void *arg) {
   pthread_exit(NULL);
 }
 
-typedef struct {
-  float *p1;
-  float *p2;
-  float *sol;
-  char dummy[116]; // CREO QUE ES PARA QUE MIDA 128
-} pair_parents_t;
-
 extern spe_program_handle_t spu_crossover_handle;
 
 /******************************** Population_t ********************************/
@@ -58,10 +51,20 @@ void population_t::next_generation() {
 	for (int i = 0; i < NUM_COOL_PARENTS; i++) {
 		for (int j = 0; j < NUM_CHILDREN; j++) {
 			int rnd_candidate = i;
-			while (rnd_candidate == i)
-				rnd_candidate = (int) floor(RAND * NUM_COOL_PARENTS);
-			offspring[i * NUM_CHILDREN + j] = new candidate_t(candidates[i]->dna, candidates[rnd_candidate]->dna, &datap[j], j);
+			while (rnd_candidate == i) rnd_candidate = (int) floor(RAND * NUM_COOL_PARENTS);
+			posix_memalign((void**) &datap[j].parents, (size_t) 128, sizeof(pair_parents_t));
+			datap[j].parents->p1 = candidates[i]->dna;
+			datap[j].parents->p2 = candidates[rnd_candidate]->dna;
+			offspring[i * NUM_CHILDREN + j] = new candidate_t(datap[j].parents, &datap[j], j);
 		}
+
+		for (int j = 0; j < NUM_CHILDREN; j++) {
+			pthread_join(datap[j].pthread, NULL);
+			spe_context_destroy(datap[j].context);
+		}
+
+		for (int j = 0; j < NUM_CHILDREN; j++)
+			offspring[i * NUM_CHILDREN + j]->calc_fitness();
 	}
 	
 	for (int i = 0; i < POP_SIZE; i++)
@@ -75,6 +78,7 @@ candidate_t* population_t::get_fittest() {
 
 /******************************** Candidate_t *********************************/
 candidate_t::candidate_t() {
+	posix_memalign((void**) &dna, (size_t) 128, sizeof(float)*DNA_LENGTH);
 	for (int i = 0; i < DNA_LENGTH; i += POLY_LENGTH) {
 		dna[i+0] = RAND;
 		dna[i+1] = RAND;
@@ -87,38 +91,20 @@ candidate_t::candidate_t() {
 		}
 	}
 
-	fitness = calc_fitness();
+	calc_fitness();
 }
 
-candidate_t::candidate_t(float *parent1, float *parent2, ppu_pthread_data_t *datap, int x) {
-  float p1[DNA_LENGTH] __attribute__ ((aligned(128)));
-  float p2[DNA_LENGTH] __attribute__ ((aligned(128)));
-  for (int i = 0; i < DNA_LENGTH; i++) { p1[i] = parent1[i]; p2[i] = parent2[i]; }
+candidate_t::candidate_t(pair_parents_t* parents, ppu_pthread_data_t *datap, int x) {
+	posix_memalign((void**) &dna, (size_t) 128, sizeof(float)*DNA_LENGTH);
+	parents->sol = dna;
 
-  pair_parents_t parents __attribute__((aligned(128)));
-  parents.p1 = p1;
-  parents.p2 = p2;
-  parents.sol = dna;
-
-  printf("ppu #%d parents: %f %f\n", x, parents.p1[0], parents.p2[0]);
-
-  datap->context = spe_context_create(0, NULL);
-  spe_program_load(datap->context, &spu_crossover_handle);
-  datap->entry = SPE_DEFAULT_ENTRY;
-  datap->argp = (void *) &parents;
-  //datap->flags = 0;
-  datap->envp = (void *) 128;
-  pthread_create(&(datap->pthread), NULL, &ppu_crossover, datap);
-  spe_in_mbox_write(datap->context, (unsigned int *)&x, 1, SPE_MBOX_ANY_NONBLOCKING);
-
-  for (int j = 0; j < 1; j++) {
-    pthread_join(datap->pthread, NULL);
-    spe_context_destroy(datap->context);
-  }
-
-  printf("%d == %d ?\n", parents.sol[0], dna[0]);
-
-  fitness = calc_fitness();
+	datap->context = spe_context_create(0, NULL);
+	spe_program_load(datap->context, &spu_crossover_handle);
+	datap->entry = SPE_DEFAULT_ENTRY;
+	datap->argp = (void*) parents;
+	datap->envp = (void*) 128;
+	pthread_create(&(datap->pthread), NULL, &ppu_crossover, datap);
+	spe_in_mbox_write(datap->context, (unsigned int*) &x, 1, SPE_MBOX_ANY_NONBLOCKING);
 }
 
 float candidate_t::calc_fitness() {
@@ -135,7 +121,7 @@ float candidate_t::calc_fitness() {
 			diff += abs((unsigned short int) px_original[i][j].b - ((unsigned short int) pr.blueQuantum()  >> RGB_BITS));
 		}
 
-	return 1. - (float) diff / (float) (IMAGE_HEIGHT * IMAGE_WIDTH * 3 * 255);
+	return fitness = 1. - (float) diff / (float) (IMAGE_HEIGHT * IMAGE_WIDTH * 3 * 255);
 }
 
 void candidate_t::draw() {
