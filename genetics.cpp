@@ -111,15 +111,29 @@ float candidate_t::calc_fitness() {
 	int diff = 0;
 	draw();
 
-	Color pr;
+	vect_u r, g, b;
+	r.v = (vector int){0,0,0,0};
+	g.v = (vector int){0,0,0,0};
+	b.v = (vector int){0,0,0,0};
+	Color pr1, pr2, pr3, pr4;
 	for (int i = 0; i < IMAGE_WIDTH; i++)
-		for (int j = 0; j < IMAGE_HEIGHT; j++) {
-			pr = replica.pixelColor(i, j);
+		for (int j = 0; j < IMAGE_HEIGHT / 4; j+=4) {
+			pr1 = replica.pixelColor(i, j);
+			pr2 = replica.pixelColor(i, j+1);
+			pr3 = replica.pixelColor(i, j+2);
+			pr4 = replica.pixelColor(i, j+3);
+
+			r = vec_add(r, (vector int){abs((unsigned short int) px_original[i][j].r - ((unsigned short int) pr1.redQuantum()   >> RGB_BITS)), abs((unsigned short int) px_original[i][j+1].r - ((unsigned short int) pr2.redQuantum()   >> RGB_BITS)), abs((unsigned short int) px_original[i][j+2].r - ((unsigned short int) pr3.redQuantum()   >> RGB_BITS)), abs((unsigned short int) px_original[i][j+3].r - ((unsigned short int) pr4.redQuantum()   >> RGB_BITS))})
+			g = vec_add(g, (vector int){abs((unsigned short int) px_original[i][j].g - ((unsigned short int) pr1.greenQuantum()   >> RGB_BITS)), abs((unsigned short int) px_original[i][j+1].g - ((unsigned short int) pr2.greenQuantum()   >> RGB_BITS)), abs((unsigned short int) px_original[i][j+2].g - ((unsigned short int) pr3.greenQuantum()   >> RGB_BITS)), abs((unsigned short int) px_original[i][j+3].g - ((unsigned short int) pr4.greenQuantum()   >> RGB_BITS))})
+			b = vec_add(b, (vector int){abs((unsigned short int) px_original[i][j].b - ((unsigned short int) pr1.blueQuantum()   >> RGB_BITS)), abs((unsigned short int) px_original[i][j+1].b - ((unsigned short int) pr2.blueQuantum()   >> RGB_BITS)), abs((unsigned short int) px_original[i][j+2].b - ((unsigned short int) pr3.blueQuantum()   >> RGB_BITS)), abs((unsigned short int) px_original[i][j+3].b - ((unsigned short int) pr4.blueQuantum()   >> RGB_BITS))})
 			
-			diff += abs((unsigned short int) px_original[i][j].r - ((unsigned short int) pr.redQuantum()   >> RGB_BITS));
-			diff += abs((unsigned short int) px_original[i][j].g - ((unsigned short int) pr.greenQuantum() >> RGB_BITS));
-			diff += abs((unsigned short int) px_original[i][j].b - ((unsigned short int) pr.blueQuantum()  >> RGB_BITS));
+// 			diff += abs((unsigned short int) px_original[i][j].r - ((unsigned short int) pr.redQuantum()   >> RGB_BITS));
+// 			diff += abs((unsigned short int) px_original[i][j].g - ((unsigned short int) pr.greenQuantum() >> RGB_BITS));
+// 			diff += abs((unsigned short int) px_original[i][j].b - ((unsigned short int) pr.blueQuantum()  >> RGB_BITS));
 		}
+	// guarda el resultado en r
+	r = vec_add(r, vec_add(g, b));
+	diff = r[0] + r[1] + r[2] + r[4];
 
 	return fitness = 1. - (float) diff / (float) (IMAGE_HEIGHT * IMAGE_WIDTH * 3 * 255);
 }
