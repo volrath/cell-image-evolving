@@ -27,6 +27,7 @@ int main(unsigned long long speid, unsigned long long argp, unsigned long long e
 	float *act, val;
 	for (int i = 0; i < DNA_LENGTH; i += POLY_LENGTH) {
 		act = (RAND < 0.5) ? p1 : p2;
+//		printf("spu :: %f %f %f\n", p1[i], p2[i], act[i]);
 
 		for (int j = 0; j < POLY_LENGTH; j++) {
 			val = act[i+j];

@@ -139,7 +139,6 @@ float candidate_t::calc_fitness() {
 				abs((unsigned short int) px_original[i][j+2].b - ((unsigned short int) pr3.blueQuantum() >> RGB_BITS)),
 				abs((unsigned short int) px_original[i][j+3].b - ((unsigned short int) pr4.blueQuantum() >> RGB_BITS))
 			});
-			
 		}
 	// Guarda el resultado en r
  	r.v = vec_add(r.v, vec_add(g.v, b.v));
@@ -175,3 +174,4 @@ void candidate_t::write() {
 	replica.write(s);
 	delete [] s;
 }
+
