@@ -1,153 +1,116 @@
-\documentclass[spanish]{article}
+\documentclass[11pt, spanish]{article}
 \usepackage[spanish, activeacute]{babel}
-\usepackage[latin1]{inputenc}
+\usepackage[utf8]{inputenc}
 \usepackage{graphicx}
-
-%\usetheme{Ilmenau}
-
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{fullpage}
+\renewcommand{\baselinestretch}{1.3}
+\floatname{algorithm}{Algoritmo}
 
 \begin{document}
-\title{IntroducciÛn a la ProgramaciÛn Multin˙cleo\\EvoluciÛn genÈtica de im·genes}
+\title{Introducci√≥n a la Programaci√≥n Multin√∫cleo\\Evoluci√≥n gen√©tica de im√°genes}
 \author{Daniel Barreto - \#04-36723 \texttt{<daniel@gia.usb.ve>} \\ Ernesto Level - \#05-38402 \texttt{<ealevel@gmail.com>}}
 \date{\today}
 
-%\begin{frame}
-%\titlepage
-%\end{frame}
-
 \maketitle
 
-\section{IntroducciÛn}
-\subsection{Evolucionando im·genes}
-  \begin{figure}[htp]
-    \centering
-    \includegraphics[scale=0.7]{media/evolution.png}
-  \end{figure}
+\section{Introducci√≥n}
+\subsection{Evolucionando im√°genes}
+\begin{figure}[htp]
+	\centering
+	\includegraphics[scale=0.7]{media/evolution.png}
+\end{figure}
 
-  Conseguir la mejor aproximaciÛn a una imagen dada usando una
-  cantidad finita de polÌgonos.
-%\end{frame}
+Conseguir la mejor aproximaci√≥n a una imagen dada usando una cantidad finita de pol√≠gonos.
 
-\subsection{CaracterÌsticas de la evoluciÛn}
-  \begin{itemize}
-  \item Se busca representar lo mejor posible una imagen dada con un
-    n˙mero finito y est·tico de polÌgonos (104 en nuestro caso de
-    estudio)
-  \item Cada polÌgono tiene una cantidad est·tica de vertices (6 en
-    nuestro caso de estudio), un color y una opacidad.
-  \item Se utilizan individuos cuyos \emph{ADN} representan una
-    secuencia del n˙mero de polÌgonos a utilizar, guardando el color
-    de relleno del polÌgono, la opacidad con la que es dibujado en
-    pantalla y sus vertices.
-  \end{itemize}
-%\end{frame}
+\subsection{Caracter√≠sticas de la evoluci√≥n}
+\begin{itemize}
+	\item Se busca representar lo mejor posible una imagen dada con un n√∫mero finito y est√°tico de pol√≠gonos (104 en nuestro caso de estudio)
+	\item Cada pol√≠gono tiene una cantidad est√°tica de vertices (6 en nuestro caso de estudio), un color y una opacidad.
+	\item Se utilizan individuos cuyos \emph{ADN} representan una secuencia del n√∫mero de pol√≠gonos a utilizar, guardando el color de relleno del pol√≠gono, la opacidad con la que es dibujado en pantalla y sus vertices.
+\end{itemize}
 
-\section{Marco teÛrico}
+\section{Marco te√≥rico}
+\subsection{Aproximaciones a la soluci√≥n}
+Existen dos aproximaciones estudiadas para lograr una evoluci√≥n de la imagen:
 
-\subsection{Aproximaciones a la soluciÛn}
-  Existen dos aproximaciones estudiadas para lograr una evoluciÛn de
-  la imagen:
-
-  \begin{enumerate}
-  \item \textbf{Roger Alsing:} Utiliza una poblaciÛn de sÛlo un
-    individuo, que representa una cantidad de polÌgonos variable,
-    empieza con un ˙nico polÌgono y luego va agregando mas. Realiza
-    mutaciones con poca probabilidad para ir variando las posiciones y
-    los colores de los polÌgonos que representa el
-    individuo. Parecido a \emph{Hill Climbing}
-
-  \item \textbf{Jacob Seidelin:} Utiliza una poblaciÛn variable, pero
-    de m·s de un individuo. Los individuos con mejor fitness se cruzan
-    y se generan nuevas poblaciones. AproximaciÛn netamente genÈtica.
-  \end{enumerate}
-%\end{frame}
+\begin{enumerate}
+	\item \textbf{Roger Alsing:} Utiliza una poblaci√≥n de s√≥lo un individuo, que representa una cantidad de pol√≠gonos variable, empieza con un √∫nico pol√≠gono y luego va agregando mas. Realiza mutaciones con poca probabilidad para ir variando las posiciones y los colores de los pol√≠gonos que representa el individuo. Parecido a \emph{Hill Climbing}
+	\item \textbf{Jacob Seidelin:} Utiliza una poblaci√≥n variable, pero de m√°s de un individuo. Los individuos con mejor fitness se cruzan y se generan nuevas poblaciones. Aproximaci√≥n netamente gen√©tica.
+	\end{enumerate}
 
 \subsection{Estructuras de datos y representaciones}
 
-\section{ImplementaciÛn}
-\subsection{DescripciÛn del algorÌtmo usado}
-  \begin{enumerate}
-  \item Se crea una poblaciÛn inicial con individuos generados
-    aleatoriamente.
-  \item Se utiliza la poblaciÛn actual para generar nuevos individuos
-    hijos de los individuos con mejor fitness.
-  \item Se reemplaza la poblaciÛn actual con la nueva poblaciÛn de
-    hijos generada.
-  \item Se elige el mejor individuo de la nueva poblaciÛn y se dibuja.
-  \item Se repite desde el paso 2.
-  \end{enumerate}
-%\end{frame}
+\section{Implementaci√≥n}
+Para la resoluci√≥n de este problema se utiliz√≥ un algoritmo gen√©tico, √©ste partia de la creaci√≥n de una poblaci√≥n de individuos generados aleatoriamente. \\
 
-\subsection{Patrones de selecciÛn}
+A partir de esta poblaci√≥n se genera una nueva, esto se hace tomando los mejores individuos para cruzarlos y mutarlos. Esta nueva poblaci√≥n generada toma el lugar de la poblaci√≥n anterior, y en caso que el mejor individuo de esa poblaci√≥n sea el mejor individuo encontrado hasta el momento, se dibuja. Este √∫ltimo de paso se hace un n√∫mero $n$ de veces, mientras m√°s veces se realice mejores individuos se van consiguiendo y mejor la soluci√≥n generada se parece a la imagen original. \\
+
+\subsection{Descripci√≥n del algor√≠tmo usado}
+A continuaci√≥n se presenta la base del algoritmo utilizado para la resoluci√≥n del problema, considerando una poblaci√≥n de 36 individuos, donde cada unos de ellos posee 48 polinomios, y a su vez cada uno de ellos posee un alfa y colores (RGB por rojo, verde y azul), y dos coordenadas $X$ e $Y$ por cada uno de los 6 vertices con los que se trabaje. \\
+
+El algoritmo \ref{genetic} muestra el algoritmo gen√©tico utilizado para la resolver el problema.
+
+\begin{algorithm}
+	\caption{Algoritmo Gen√©tico}
+	\label{genetic}
+	\begin{algorithmic}
+		\STATE Crear una poblaci√≥n inicial con individuos generados aleatoriamente.
+		\FOR {$i$ \textbf{in} $1..n$}
+			\STATE Generar una nueva poblaci√≥n a partir de la poblaci√≥n anterior.
+			\STATE Reemplazar la poblaci√≥n actual con la nueva poblaci√≥n.
+			\IF {El mejor individuo de la poblaci√≥n actual es el mejor individuo}
+				\STATE Dibujar mejor individuo de la poblaci√≥n actual.
+			\ENDIF
+		\ENDFOR
+	\end{algorithmic}
+\end{algorithm}
+
+\subsection{Patrones de selecci√≥n}
+Para la generaci√≥n de la nueva poblaci√≥n se decidi√≥ tomar los mejores 6 individuos de la poblaci√≥n como el primer padre, y por cada uno tomar 6 otros individuos escogidos aleatoriamente y cruzarlos, dando como resultado una poblaci√≥n de 36 individuos.
 
 \subsection{Cruce de individuos}
-  El nuevo individuo a crear ser· una mezcla de los polÌgonos que
-  conforman los \emph{ADN} de ambos padres, elegidos uniformemente
-  aleatorios.
-%\end{frame}
+El nuevo individuo a crear ser√° una mezcla de los pol√≠gonos que conforman los \emph{ADN} de ambos padres, elegidos uniformemente aleatorios. Esto se hace con un factor de probabilidad del 50\% entre tomar el cromosoma del primer padre o tomar el del segundo padre.
 
-\subsection{FunciÛn de Fitness}
-  La funciÛn de fitness utilizada simplemente calcula pixel a pixel la
-  diferencia de colores entre la imagen original y la imagen generada:
+\subsection{Mutaci√≥n del individuo}
+El nuevo individuo generado pasa un proceso de mutaci√≥n, en donde con una probabilidad del 2\% se decide si se muta uno de los cromosomas del individuo o no, esto se hace para todos sus cromosomas. \\
 
-  \begin{equation}
-    \label{eq:fitness}
-    f_{fitness} = sum(\delta_r + \delta_g + \delta_b + \delta_{alpha} |\ por\ cada\ pixel)
-  \end{equation}
+En caso que se desee mutar el cromosoma, se tomar√° el cromosoma y podr√° mutar hasta un 10\%; esto significa que su valor podr√° variar hasta un m√°ximo de 10\% por encima o debajo de su valor. As√≠:
+$$ cromosoma = cromosoma + random * 10\% * 2 - 10\% $$
 
-%\end{frame}
+Considerando que el \emph{random} genera n√∫mero entre 0 y 1, se tiene que el m√°ximo n√∫mero resultante ser√≠a $cromosoma + 0,1$ y el m√≠nimo $cromosoma - 0,1$.
 
-\subsection{ParalelizaciÛn}
-  El cÛmputo m·s fuerte se realiza en el c·lculo del fitness de un
-  individuo. Este trabajo ser· asignado a los \emph{SPU}.\\
+\subsection{Funci√≥n de Fitness}
+La funci√≥n de fitness utilizada simplemente calcula pixel a pixel la diferencia de colores entre la imagen original y la imagen generada; esto permite distinguir a todos los individuos generados y tomar el mejor, es decir, quien tenga mayor fitness.
 
-  El \emph{PPU} se encarga de llevar el manejo principal de la
-  ejecuciÛn. Crea las nuevas generaciones cruzando los mejores
-  individuos de la poblaciÛn actual y luego le asigna una cantidad
-  fija de los nuevos individuos generados a los \emph{SPU} para
-  calcularles su fitness.
-%\end{frame}
+$$ F_{fitness} = \displaystyle\sum_{pixel} \delta_r + \delta_g + \delta_b $$
 
-  El peso en memoria de un individuo viene dado principalmente por el
-  peso del \emph{ADN} que representa, el cual puede ser est·ticamente
-  calculado de la siguiente forma:
+donde $\delta_i$ indica la diferencia absoluta entre el pixel de la imagen original y la imagen generada, para $i = \{r, g, b\}$ indicando respectivamente los colores: rojo, verde y azul.
 
-  \begin{equation}
-    \label{eq:weight-adn}
-    Peso_{ADN} = NUM\_POLIGONOS * Peso_{poligono}
-  \end{equation}
+\section{Paralelizaci√≥n}
+\subsection{SPU}
+El c√≥mputo m√°s fuerte se realiza en el c√°lculo del fitness de un individuo. Sin embargo, el SPU no pose√≠a las librer√≠as necesarias para realizar esto, y aunque se busc√≥ y trat√≥ de compilar los archivos fuentes de la librer√≠a necesario no nos fue posible la paralelizaci√≥n de esta funci√≥n. \\
 
-  \begin{equation}
-    \label{eq:weight-poly}
-    Peso_{poligono} = Peso_{color} + Peso_{vertices}
-  \end{equation}
-%\end{frame}
+Sin embargo, se paraleliz√≥ el calculo de los nuevos individuos. Como una poblaci√≥n de individuos es de tama√±o 36, tomando 6 primeros padres y otros 6, se decidi√≥ paralelizar esta generaci√≥n generando uno de cada 6 individuos por ver a cada SPU. \\
 
-  El peso de un color almacenado en memoria ocupa \texttt{4 Bytes} (Un
-  entero) mientras que los 6 vertices de los polÌgonos pueden ser
-  almacenados en \texttt{12 Bytes} (3 enteros)\\
+Es decir, al tomar el primer padre y se deb√≠an generar 6 otros padres aleatorios, el calculo del cruce de estos padres lo hac√≠an los SPU. Y se repet√≠a para los siguientes cinco primeros padres restantes.
 
-  Sustituyendo todo en la equaciÛn \ref{eq:weight-adn} d·:\\
+\subsection{PPU}
+El \emph{PPU} se encarga de llevar el manejo principal de la ejecuci√≥n. Se encarga de distribuir la carga entre los SPU, luego de cada generaci√≥n se encarga del c√°lculo del fitness, al tener la poblaci√≥n se encarga de tomar el mejor individuo y dibujarlo. \\
 
-  \begin{equation}
-    \label{eq:total}
-    Peso_{ADN} = 104 * 16 = 1664
-  \end{equation}
+El peso en memoria de un individuo viene dado principalmente por el peso del \emph{ADN} que representa, el cual puede ser est√°ticamente calculado de la siguiente forma:
 
+$$ Peso_{poligono} = Peso_{colores} + Peso_{vertices} = 4 + 2*6 = 16\textrm{ floats} $$
 
-  M˙ltiplo de 128.\\
-%\end{frame}
+$$ Peso_{ADN} = NUM\_POLIGONOS * Peso_{poligono} = 48 * 16 = 768\textrm{ floats} $$
 
-\subsection{Posible ``Loop Unrolling''}
-  \textbf{C·lculo de fitness} contiene dos loops anidados que iteran
-  128 veces.\\
+El peso de un color ocupa 4 bytes (rojo, verde, azul, alfa). El peso de un v√©rtice pesa 12, ya que se utilizan 6 v√©rtices, donde cada uno indica las coordenadas X e Y del punto.
 
-  Total de iteraciones: $128 * 128 = 16384$.\\
+\subsection{Posible \emph{Loop Unrolling}}
+\textbf{C√°lculo de fitness} contiene dos ciclos anidados que iteran 128 veces cada uno (por el tama√±o de la imagen: 128x128 pixeles), siendo el total de iteraciones $128 * 128 = 16384$. \\
 
-  Aprovechando las operaciones \emph{Vector/SIMD} se puede reducir el
-  total de iteraciones a $128 * 32 = 4096$. Logrando reducir hasta un
-  \textbf{75\%} de iteraciones.
-%\end{frame}
+Aprovechando las operaciones \emph{Vector/SIMD} se redujo el total de iteraciones a $128 * (128/4) = 4096$. Logrando reducir hasta un \textbf{75\%} el n√∫mero de iteraciones.
 
 \section{Resutados}
 \end{document}
