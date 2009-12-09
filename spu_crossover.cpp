@@ -10,6 +10,7 @@ float p2[DNA_LENGTH]   __attribute__ ((aligned(128)));
 float sol[DNA_LENGTH]  __attribute__ ((aligned(128)));
 
 int main(unsigned long long speid, unsigned long long argp, unsigned long long envp) {
+	srand(time(NULL));
 	unsigned int spu_id = spu_read_in_mbox();
 	int tag = 1, tag_mask = 1 << tag;
 

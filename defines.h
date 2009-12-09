@@ -22,7 +22,3 @@ typedef struct {
   char dummy[116];
 } pair_parents_t;
 
-typedef union {
-  float i[4];
-  vector float v;
-} vect_u;
