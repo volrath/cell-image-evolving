@@ -1,0 +1,153 @@
+\documentclass[spanish]{article}
+\usepackage[spanish, activeacute]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{graphicx}
+
+%\usetheme{Ilmenau}
+
+
+\begin{document}
+\title{Introducción a la Programación Multinúcleo\\Evolución genética de imágenes}
+\author{Daniel Barreto - \#04-36723 \texttt{<daniel@gia.usb.ve>} \\ Ernesto Level - \#05-38402 \texttt{<ealevel@gmail.com>}}
+\date{\today}
+
+%\begin{frame}
+%\titlepage
+%\end{frame}
+
+\maketitle
+
+\section{Introducción}
+\subsection{Evolucionando imágenes}
+  \begin{figure}[htp]
+    \centering
+    \includegraphics[scale=0.7]{media/evolution.png}
+  \end{figure}
+
+  Conseguir la mejor aproximación a una imagen dada usando una
+  cantidad finita de polígonos.
+%\end{frame}
+
+\subsection{Características de la evolución}
+  \begin{itemize}
+  \item Se busca representar lo mejor posible una imagen dada con un
+    número finito y estático de polígonos (104 en nuestro caso de
+    estudio)
+  \item Cada polígono tiene una cantidad estática de vertices (6 en
+    nuestro caso de estudio), un color y una opacidad.
+  \item Se utilizan individuos cuyos \emph{ADN} representan una
+    secuencia del número de polígonos a utilizar, guardando el color
+    de relleno del polígono, la opacidad con la que es dibujado en
+    pantalla y sus vertices.
+  \end{itemize}
+%\end{frame}
+
+\section{Marco teórico}
+
+\subsection{Aproximaciones a la solución}
+  Existen dos aproximaciones estudiadas para lograr una evolución de
+  la imagen:
+
+  \begin{enumerate}
+  \item \textbf{Roger Alsing:} Utiliza una población de sólo un
+    individuo, que representa una cantidad de polígonos variable,
+    empieza con un único polígono y luego va agregando mas. Realiza
+    mutaciones con poca probabilidad para ir variando las posiciones y
+    los colores de los polígonos que representa el
+    individuo. Parecido a \emph{Hill Climbing}
+
+  \item \textbf{Jacob Seidelin:} Utiliza una población variable, pero
+    de más de un individuo. Los individuos con mejor fitness se cruzan
+    y se generan nuevas poblaciones. Aproximación netamente genética.
+  \end{enumerate}
+%\end{frame}
+
+\subsection{Estructuras de datos y representaciones}
+
+\section{Implementación}
+\subsection{Descripción del algorítmo usado}
+  \begin{enumerate}
+  \item Se crea una población inicial con individuos generados
+    aleatoriamente.
+  \item Se utiliza la población actual para generar nuevos individuos
+    hijos de los individuos con mejor fitness.
+  \item Se reemplaza la población actual con la nueva población de
+    hijos generada.
+  \item Se elige el mejor individuo de la nueva población y se dibuja.
+  \item Se repite desde el paso 2.
+  \end{enumerate}
+%\end{frame}
+
+\subsection{Patrones de selección}
+
+\subsection{Cruce de individuos}
+  El nuevo individuo a crear será una mezcla de los polígonos que
+  conforman los \emph{ADN} de ambos padres, elegidos uniformemente
+  aleatorios.
+%\end{frame}
+
+\subsection{Función de Fitness}
+  La función de fitness utilizada simplemente calcula pixel a pixel la
+  diferencia de colores entre la imagen original y la imagen generada:
+
+  \begin{equation}
+    \label{eq:fitness}
+    f_{fitness} = sum(\delta_r + \delta_g + \delta_b + \delta_{alpha} |\ por\ cada\ pixel)
+  \end{equation}
+
+%\end{frame}
+
+\subsection{Paralelización}
+  El cómputo más fuerte se realiza en el cálculo del fitness de un
+  individuo. Este trabajo será asignado a los \emph{SPU}.\\
+
+  El \emph{PPU} se encarga de llevar el manejo principal de la
+  ejecución. Crea las nuevas generaciones cruzando los mejores
+  individuos de la población actual y luego le asigna una cantidad
+  fija de los nuevos individuos generados a los \emph{SPU} para
+  calcularles su fitness.
+%\end{frame}
+
+  El peso en memoria de un individuo viene dado principalmente por el
+  peso del \emph{ADN} que representa, el cual puede ser estáticamente
+  calculado de la siguiente forma:
+
+  \begin{equation}
+    \label{eq:weight-adn}
+    Peso_{ADN} = NUM\_POLIGONOS * Peso_{poligono}
+  \end{equation}
+
+  \begin{equation}
+    \label{eq:weight-poly}
+    Peso_{poligono} = Peso_{color} + Peso_{vertices}
+  \end{equation}
+%\end{frame}
+
+  El peso de un color almacenado en memoria ocupa \texttt{4 Bytes} (Un
+  entero) mientras que los 6 vertices de los polígonos pueden ser
+  almacenados en \texttt{12 Bytes} (3 enteros)\\
+
+  Sustituyendo todo en la equación \ref{eq:weight-adn} dá:\\
+
+  \begin{equation}
+    \label{eq:total}
+    Peso_{ADN} = 104 * 16 = 1664
+  \end{equation}
+
+
+  Múltiplo de 128.\\
+%\end{frame}
+
+\subsection{Posible ``Loop Unrolling''}
+  \textbf{Cálculo de fitness} contiene dos loops anidados que iteran
+  128 veces.\\
+
+  Total de iteraciones: $128 * 128 = 16384$.\\
+
+  Aprovechando las operaciones \emph{Vector/SIMD} se puede reducir el
+  total de iteraciones a $128 * 32 = 4096$. Logrando reducir hasta un
+  \textbf{75\%} de iteraciones.
+%\end{frame}
+
+\section{Resutados}
+\end{document}
