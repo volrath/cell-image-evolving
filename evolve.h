@@ -12,6 +12,7 @@
 #include <pthread.h>
 #include <sched.h>
 #include <errno.h>
+#include <altivec.h>
 #include <libspe2.h>
 
 #define IMAGE_WIDTH  128
@@ -19,6 +20,11 @@
 
 using namespace std;
 using namespace Magick;
+
+typedef union {
+  int i[4];
+  vector int v;
+} vect_u;
 
 typedef struct ppu_pthread_data{
 	spe_context_ptr_t context;

@@ -10,6 +10,7 @@ float p2[DNA_LENGTH]   __attribute__ ((aligned(128)));
 float sol[DNA_LENGTH]  __attribute__ ((aligned(128)));
 
 int main(unsigned long long speid, unsigned long long argp, unsigned long long envp) {
+	srand(time(NULL));
 	unsigned int spu_id = spu_read_in_mbox();
 	int tag = 1, tag_mask = 1 << tag;
 
@@ -26,6 +27,7 @@ int main(unsigned long long speid, unsigned long long argp, unsigned long long e
 	float *act, val;
 	for (int i = 0; i < DNA_LENGTH; i += POLY_LENGTH) {
 		act = (RAND < 0.5) ? p1 : p2;
+//		printf("spu :: %f %f %f\n", p1[i], p2[i], act[i]);
 
 		for (int j = 0; j < POLY_LENGTH; j++) {
 			val = act[i+j];

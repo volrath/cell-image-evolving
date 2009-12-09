@@ -8,14 +8,14 @@ Image original;
 Image replica(Geometry(IMAGE_WIDTH, IMAGE_HEIGHT), "white");
 color_t px_original[IMAGE_WIDTH][IMAGE_HEIGHT];
 
-bool compare(candidate_t *a, candidate_t *b) {
-	return a->fitness > b->fitness;
-}
-
 void *ppu_crossover(void *arg) {
   ppu_pthread_data_t *data = (ppu_pthread_data_t*) arg;
   spe_context_run(data->context, &(data->entry), 0, data->argp, data->envp, NULL);
   pthread_exit(NULL);
+}
+
+int compare_t(candidate_t *a, candidate_t *b) {
+	return (a->fitness > b->fitness);
 }
 
 extern spe_program_handle_t spu_crossover_handle;
@@ -39,12 +39,10 @@ population_t::population_t(char* file) {
 			px = original.pixelColor(i, j);
 			px_original[i][j].from_pixel(px);
 		}
-
-	sort(candidates, candidates + POP_SIZE, compare);
 }
 
 void population_t::next_generation() {
-	sort(candidates, candidates + POP_SIZE, compare);
+	std::sort(candidates, candidates + POP_SIZE, compare_t);
 	candidate_t* offspring[POP_SIZE];
 	ppu_pthread_data_t datap[NUM_CHILDREN];
 	
@@ -72,7 +70,7 @@ void population_t::next_generation() {
 }
 
 candidate_t* population_t::get_fittest() {
-	sort(candidates, candidates + POP_SIZE, compare);
+	std::sort(candidates, candidates + POP_SIZE, compare_t);
 	return candidates[0];
 }
 
@@ -112,28 +110,39 @@ float candidate_t::calc_fitness() {
 	draw();
 
 	vect_u r, g, b;
-	r.v = (vector int){0,0,0,0};
-	g.v = (vector int){0,0,0,0};
-	b.v = (vector int){0,0,0,0};
-	Color pr1, pr2, pr3, pr4;
+	r.v = (vector int) {0, 0, 0, 0};
+	g.v = (vector int) {0, 0, 0, 0};
+	b.v = (vector int) {0, 0, 0, 0};
+	Color pr1, pr2, pr3, pr4, pr;
 	for (int i = 0; i < IMAGE_WIDTH; i++)
-		for (int j = 0; j < IMAGE_HEIGHT / 4; j+=4) {
-			pr1 = replica.pixelColor(i, j);
-			pr2 = replica.pixelColor(i, j+1);
-			pr3 = replica.pixelColor(i, j+2);
-			pr4 = replica.pixelColor(i, j+3);
+		for (int j = 0; j < IMAGE_HEIGHT; j+=4) {
+ 			pr1 = replica.pixelColor(i, j);
+ 			pr2 = replica.pixelColor(i, j+1);
+ 			pr3 = replica.pixelColor(i, j+2);
+ 			pr4 = replica.pixelColor(i, j+3);
 
-			r = vec_add(r, (vector int){abs((unsigned short int) px_original[i][j].r - ((unsigned short int) pr1.redQuantum()   >> RGB_BITS)), abs((unsigned short int) px_original[i][j+1].r - ((unsigned short int) pr2.redQuantum()   >> RGB_BITS)), abs((unsigned short int) px_original[i][j+2].r - ((unsigned short int) pr3.redQuantum()   >> RGB_BITS)), abs((unsigned short int) px_original[i][j+3].r - ((unsigned short int) pr4.redQuantum()   >> RGB_BITS))})
-			g = vec_add(g, (vector int){abs((unsigned short int) px_original[i][j].g - ((unsigned short int) pr1.greenQuantum()   >> RGB_BITS)), abs((unsigned short int) px_original[i][j+1].g - ((unsigned short int) pr2.greenQuantum()   >> RGB_BITS)), abs((unsigned short int) px_original[i][j+2].g - ((unsigned short int) pr3.greenQuantum()   >> RGB_BITS)), abs((unsigned short int) px_original[i][j+3].g - ((unsigned short int) pr4.greenQuantum()   >> RGB_BITS))})
-			b = vec_add(b, (vector int){abs((unsigned short int) px_original[i][j].b - ((unsigned short int) pr1.blueQuantum()   >> RGB_BITS)), abs((unsigned short int) px_original[i][j+1].b - ((unsigned short int) pr2.blueQuantum()   >> RGB_BITS)), abs((unsigned short int) px_original[i][j+2].b - ((unsigned short int) pr3.blueQuantum()   >> RGB_BITS)), abs((unsigned short int) px_original[i][j+3].b - ((unsigned short int) pr4.blueQuantum()   >> RGB_BITS))})
-			
-// 			diff += abs((unsigned short int) px_original[i][j].r - ((unsigned short int) pr.redQuantum()   >> RGB_BITS));
-// 			diff += abs((unsigned short int) px_original[i][j].g - ((unsigned short int) pr.greenQuantum() >> RGB_BITS));
-// 			diff += abs((unsigned short int) px_original[i][j].b - ((unsigned short int) pr.blueQuantum()  >> RGB_BITS));
+ 			r.v = vec_add(r.v, (vector int) {
+				abs((unsigned short int) px_original[i][j].r - ((unsigned short int) pr1.redQuantum() >> RGB_BITS)),
+				abs((unsigned short int) px_original[i][j+1].r - ((unsigned short int) pr2.redQuantum() >> RGB_BITS)),
+				abs((unsigned short int) px_original[i][j+2].r - ((unsigned short int) pr3.redQuantum() >> RGB_BITS)),
+				abs((unsigned short int) px_original[i][j+3].r - ((unsigned short int) pr4.redQuantum() >> RGB_BITS))
+			});
+ 			g.v = vec_add(g.v, (vector int) {
+				abs((unsigned short int) px_original[i][j].g - ((unsigned short int) pr1.greenQuantum() >> RGB_BITS)),
+				abs((unsigned short int) px_original[i][j+1].g - ((unsigned short int) pr2.greenQuantum() >> RGB_BITS)),
+				abs((unsigned short int) px_original[i][j+2].g - ((unsigned short int) pr3.greenQuantum() >> RGB_BITS)),
+				abs((unsigned short int) px_original[i][j+3].g - ((unsigned short int) pr4.greenQuantum() >> RGB_BITS))
+			});
+ 			b.v = vec_add(b.v, (vector int) {
+				abs((unsigned short int) px_original[i][j].b - ((unsigned short int) pr1.blueQuantum() >> RGB_BITS)),
+				abs((unsigned short int) px_original[i][j+1].b - ((unsigned short int) pr2.blueQuantum() >> RGB_BITS)),
+				abs((unsigned short int) px_original[i][j+2].b - ((unsigned short int) pr3.blueQuantum() >> RGB_BITS)),
+				abs((unsigned short int) px_original[i][j+3].b - ((unsigned short int) pr4.blueQuantum() >> RGB_BITS))
+			});
 		}
-	// guarda el resultado en r
-	r = vec_add(r, vec_add(g, b));
-	diff = r[0] + r[1] + r[2] + r[4];
+	// Guarda el resultado en r
+ 	r.v = vec_add(r.v, vec_add(g.v, b.v));
+ 	diff = r.i[0] + r.i[1] + r.i[2] + r.i[4];
 
 	return fitness = 1. - (float) diff / (float) (IMAGE_HEIGHT * IMAGE_WIDTH * 3 * 255);
 }
@@ -165,3 +174,4 @@ void candidate_t::write() {
 	replica.write(s);
 	delete [] s;
 }
+
