@@ -2,4 +2,9 @@
 image_evolve
 media/replica*
 replicas/*
-
+*.log
+*.pdf
+*.aux
+*.nav
+*.out
+*.toc
