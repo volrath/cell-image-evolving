@@ -8,3 +8,6 @@ replicas/*
 *.nav
 *.out
 *.toc
+*.bbl
+*.blg
+
